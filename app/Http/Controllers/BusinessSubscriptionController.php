@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
+use App\Models\BusinessSubscriptionPayment;
 use App\Support\PlanAccess;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,13 +22,20 @@ class BusinessSubscriptionController extends Controller
         $subscription = $access->subscription($business);
         $currentPlan = $access->plan($business);
         $usage = $access->usage($business);
+        $payments = BusinessSubscriptionPayment::query()
+            ->with('plan')
+            ->where('business_id', $business->id)
+            ->latest()
+            ->limit(20)
+            ->get();
 
         return view('business.subscription', compact(
             'business',
             'plans',
             'subscription',
             'currentPlan',
-            'usage'
+            'usage',
+            'payments'
         ));
     }
 }
