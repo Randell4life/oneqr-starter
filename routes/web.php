@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
+use App\Http\Controllers\QrAnalyticsController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\QrImageController;
 use App\Http\Controllers\QrRedirectController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/businesses/{business}/qr', [BusinessQrController::class, 'store'])->name('business.qr.store');
     Route::put('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'update'])->whereNumber('qrCode')->name('business.qr.update');
     Route::delete('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'destroy'])->whereNumber('qrCode')->name('business.qr.destroy');
+    Route::get('/businesses/{business}/analytics', [QrAnalyticsController::class, 'index'])->name('business.analytics');
+    Route::get('/businesses/{business}/qr/{qrCode}/image.svg', [QrImageController::class, 'show'])->whereNumber('qrCode')->name('business.qr.image');
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
