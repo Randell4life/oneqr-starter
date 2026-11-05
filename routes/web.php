@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessProfileController;
+use App\Http\Controllers\BusinessCatalogController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
 use App\Http\Controllers\BusinessSubscriptionController;
