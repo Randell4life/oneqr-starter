@@ -35,13 +35,13 @@ class BusinessAccess
         return $this->canManageQr($user, $business);
     }
 
-    public function visibleQrCodes(User $user, Business $business): Builder
+    public function visibleQrCodes(User $user, Business $business): HasMany
     {
         $query = $business->qrCodes();
         $membership = $this->isOwner($user, $business) ? null : $this->membership($user, $business);
 
         if ($membership?->branch_id) {
-            $query->where(function (Builder $scope) use ($membership): void {
+            $query->where(function ($scope) use ($membership): void {
                 $scope->whereNull('branch_id')->orWhere('branch_id', $membership->branch_id);
             });
         }
