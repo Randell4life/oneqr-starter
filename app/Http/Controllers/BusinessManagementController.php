@@ -24,11 +24,11 @@ class BusinessManagementController extends Controller
         ]);
     }
 
-    public function storeBranch(Request $request, Business $business): RedirectResponse
+    public function storeBranch(Request $request, Business $business, PlanAccess $plans): RedirectResponse
     {
         $this->authorizeOwner($request, $business);
 
-        $data = $request->validate([
+        $plans->assertCanCreate($business, 'branches');\n\n        $plans->assertCanCreate($business, 'team_members');\n\n        $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:100'],
@@ -67,7 +67,7 @@ class BusinessManagementController extends Controller
         return back()->with('status', 'ფილიალი წაიშალა.');
     }
 
-    public function inviteMember(Request $request, Business $business): RedirectResponse
+    public function inviteMember(Request $request, Business $business, PlanAccess $plans): RedirectResponse
     {
         $this->authorizeOwner($request, $business);
 
