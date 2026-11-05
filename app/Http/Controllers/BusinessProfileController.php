@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
+use App\Services\SmartPageResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -58,7 +59,7 @@ class BusinessProfileController extends Controller
         return back()->with('status', 'ბიზნესის პროფილი წარმატებით განახლდა.');
     }
 
-    public function show(string $slug): View
+    public function show(string $slug, SmartPageResolver $resolver): View
     {
         $business = Business::query()
             ->where('slug', $slug)
@@ -66,7 +67,9 @@ class BusinessProfileController extends Controller
             ->with(['catalogItems' => fn ($query) => $query->where('is_available', true)->orderBy('sort_order')->orderBy('name')])
             ->firstOrFail();
 
-        return view('business.public-profile', compact('business'));
+        $smartPage = $resolver->resolve($business);
+
+        return view('business.public-profile', compact('business', 'smartPage'));
     }
 
     private function authorizeOwner(Request $request, Business $business): void
