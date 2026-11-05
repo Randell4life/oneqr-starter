@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\\Database\\Eloquent\\Model;
+use Illuminate\\Database\\Eloquent\\SoftDeletes;
+use Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;
+use Illuminate\\Database\\Eloquent\\Relations\\HasMany;
 
 class Business extends Model
 {
@@ -33,5 +33,15 @@ class Business extends Model
     public function qrCodes(): HasMany
     {
         return $this->hasMany(QrCode::class);
+    }
+
+    public function branches(): HasMany
+    {
+        return $this->hasMany(BusinessBranch::class);
+    }
+
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(BusinessMembership::class);
     }
 }
