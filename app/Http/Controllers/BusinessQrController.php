@@ -25,11 +25,11 @@ class BusinessQrController extends Controller
         ]);
     }
 
-    public function store(Request $request, Business $business, BusinessAccess $access): RedirectResponse
+    public function store(Request $request, Business $business, BusinessAccess $access, PlanAccess $plans): RedirectResponse
     {
         $access->assertCanManageQr($request->user(), $business);
 
-        $data = $request->validate([
+        $plans->assertCanCreate($business, 'qr_codes');\n\n        $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'destination_url' => ['required', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
             'category' => ['required', Rule::in(['general', 'menu', 'product', 'contact', 'booking', 'review', 'campaign'])],
