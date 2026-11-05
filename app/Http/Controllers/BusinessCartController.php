@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Business;
 use App\Models\BusinessCatalogItem;
 use App\Models\BusinessOrder;
+use App\Models\BusinessOrderPayment;
+use App\Services\Payments\TbcCheckout;
 use App\Support\BusinessAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -83,7 +85,7 @@ class BusinessCartController extends Controller
         return back()->with('cart_status', 'პროდუქტი კალათიდან წაიშალა.');
     }
 
-    public function checkout(Request $request, string $slug): RedirectResponse
+    public function checkout(Request $request, string $slug, TbcCheckout $tbc): RedirectResponse
     {
         $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
         $data = $request->validate([
@@ -92,7 +94,7 @@ class BusinessCartController extends Controller
             'customer_email' => ['nullable', 'email', 'max:190'],
             'customer_address' => ['nullable', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:1500'],
-            'payment_method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer'])],
+            'payment_method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer', 'tbc_card'])],
         ]);
 
         $cart = session()->get($this->cartKey($business), []);
