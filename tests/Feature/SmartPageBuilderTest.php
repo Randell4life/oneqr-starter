@@ -75,9 +75,7 @@ class SmartPageBuilderTest extends TestCase
                 'text' => '',
                 'url' => '',
                 'is_visible' => '1',
-                'image' => UploadedFile::fake()->image('salon.webp', 800, 600)->mimeType('image/webp') === 'image/webp'
-                    ? UploadedFile::fake()->image('salon.jpg', 800, 600)
-                    : null,
+                'image' => UploadedFile::fake()->image('salon.jpg', 800, 600),
             ]],
         ])->assertRedirect();
 
