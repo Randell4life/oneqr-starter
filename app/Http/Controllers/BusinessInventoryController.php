@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\Business;
-use App\\Models\\BusinessInventoryMovement;
-use App\\Support\\BusinessAccess;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\View\\View;
+use App\Models\Business;
+use App\Models\BusinessInventoryMovement;
+use App\Support\BusinessAccess;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class BusinessInventoryController extends Controller
 {
