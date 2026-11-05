@@ -4,7 +4,6 @@ namespace App\Filament\Admin\Resources\SubscriptionPlans;
 
 use App\Filament\Admin\Resources\SubscriptionPlans\Pages;
 use App\Models\SubscriptionPlan;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
@@ -69,7 +68,6 @@ class SubscriptionPlanResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()->label('რედაქტირება'),
-                DeleteAction::make()->label('წაშლა')->requiresConfirmation(),
             ])
             ->defaultSort('sort_order');
     }
