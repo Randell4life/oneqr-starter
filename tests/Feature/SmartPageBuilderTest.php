@@ -51,6 +51,22 @@ class SmartPageBuilderTest extends TestCase
         $this->get(route('business.public', $business->slug))->assertOk()->assertSee('საუზმის მენიუ');
     }
 
+    public function test_default_page_cannot_be_unpublished(): void
+    {
+        $owner = User::factory()->create();
+        $business = $this->businessFor($owner, 'default-protection-demo');
+
+        $this->actingAs($owner)->get(route('business.smart-pages.index', $business))->assertOk();
+        $page = $business->smartPages()->where('is_default', true)->firstOrFail();
+
+        $this->actingAs($owner)->put(route('business.smart-pages.update', [$business, $page]), [
+            'name' => $page->name,
+            'blocks' => [['type' => 'text', 'text' => 'Default content', 'is_visible' => '1']],
+        ])->assertSessionHasErrors('is_published');
+
+        $this->assertTrue($page->fresh()->is_published);
+    }
+
     public function test_other_business_owner_cannot_manage_another_business_smart_page(): void
     {
         $owner = User::factory()->create();
