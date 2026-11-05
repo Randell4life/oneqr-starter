@@ -141,7 +141,7 @@ class BusinessCatalogController extends Controller
         $data['stock_quantity'] = $existing?->track_inventory
             ? (int) $existing->stock_quantity
             : ($trackInventory ? (int) $request->input('stock_quantity', 0) : null);
-        $data['low_stock_threshold'] = (int) $request->input('low_stock_threshold', 5);
+        $data['low_stock_threshold'] = (int) $request->input('low_stock_threshold', $existing?->low_stock_threshold ?? 5);
         $data['sku'] = filled($data['sku'] ?? null) ? trim($data['sku']) : null;
         $data['is_available'] = $request->boolean('is_available');
         $data['sort_order'] = (int) $request->input('sort_order', 0);
