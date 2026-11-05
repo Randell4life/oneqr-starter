@@ -24,11 +24,13 @@
 <span class="type">{{ $item->type==='product'?'პროდუქტი':'სერვისი' }}</span><h3>{{ $item->name }}</h3>
 @if($item->description)<p class="muted">{{ $item->description }}</p>@endif
 <p style="font-weight:800">{{ $item->price !== null ? number_format((float)$item->price,2).' '.$item->currency : 'ფასი შეთანხმებით' }}</p>
+@if($item->track_inventory)<p class="muted">{{ (int)$item->stock_quantity > 0 ? 'მარაგშია: '.(int)$item->stock_quantity.' ერთეული' : 'ამოწურულია' }}</p>@endif
+@if(!$item->track_inventory || (int)$item->stock_quantity > 0)
 <form method="POST" action="{{ route('business.cart.add',[$business->slug,$item->id]) }}" style="display:flex;gap:8px;align-items:center">
 @csrf
 <input aria-label="რაოდენობა" name="quantity" type="number" min="1" max="100" value="1" required style="width:76px;padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white">
 <button class="action" type="submit" style="border:0;cursor:pointer">კალათაში დამატება</button>
-</form></article>
+</form>@else<p class="muted">პროდუქტი დროებით არ არის მარაგში.</p>@endif</article>
 @empty<p class="muted">კატალოგი მალე შეივსება.</p>@endforelse
 </div></section>
 <footer>ეს გვერდი შექმნილია <strong>oneQR</strong>-ით · ONE SCAN. ENDLESS POSSIBILITIES.</footer></main></body></html>
