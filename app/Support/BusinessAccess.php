@@ -1,20 +1,18 @@
 <?php
 
-namespace App\\Support;
+namespace App\Support;
 
-use App\\Models\\Business;
-use App\\Models\\BusinessMembership;
-use App\\Models\\User;
-use Illuminate\\Database\\Eloquent\\Builder;
+use App\Models\Business;
+use App\Models\BusinessMembership;
+use App\Models\QrCode;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class BusinessAccess
 {
     public function membership(User $user, Business $business): ?BusinessMembership
     {
-        return $business->memberships()
-            ->where('user_id', $user->id)
-            ->where('status', 'active')
-            ->first();
+        return $business->memberships()->where('user_id', $user->id)->where('status', 'active')->first();
     }
 
     public function isOwner(User $user, Business $business): bool
@@ -29,11 +27,7 @@ class BusinessAccess
 
     public function canManageQr(User $user, Business $business): bool
     {
-        if ($this->isOwner($user, $business)) {
-            return true;
-        }
-
-        return $this->membership($user, $business)?->role === 'manager';
+        return $this->isOwner($user, $business) || $this->membership($user, $business)?->role === 'manager';
     }
 
     public function canViewAnalytics(User $user, Business $business): bool
@@ -44,28 +38,34 @@ class BusinessAccess
     public function visibleQrCodes(User $user, Business $business): Builder
     {
         $query = $business->qrCodes();
+        $membership = $this->isOwner($user, $business) ? null : $this->membership($user, $business);
 
-        if (! $this->isOwner($user, $business)) {
-            $membership = $this->membership($user, $business);
-
-            if ($membership?->branch_id) {
-                $query->where(function (Builder $branchQuery) use ($membership): void {
-                    $branchQuery->whereNull('branch_id')
-                        ->orWhere('branch_id', $membership->branch_id);
-                });
-            }
+        if ($membership?->branch_id) {
+            $query->where(function (Builder $scope) use ($membership): void {
+                $scope->whereNull('branch_id')->orWhere('branch_id', $membership->branch_id);
+            });
         }
 
         return $query;
     }
 
-    public function branchForNewQr(User $user, Business $business): ?int
+    public function canAccessQr(User $user, Business $business, QrCode $qrCode): bool
     {
-        if ($this->isOwner($user, $business)) {
-            return null;
+        if ((int) $qrCode->business_id !== (int) $business->id || ! $this->canViewQr($user, $business)) {
+            return false;
         }
 
-        return $this->membership($user, $business)?->branch_id;
+        if ($this->isOwner($user, $business)) {
+            return true;
+        }
+
+        $membership = $this->membership($user, $business);
+
+        return $membership !== null && (
+            $membership->branch_id === null ||
+            $qrCode->branch_id === null ||
+            (int) $membership->branch_id === (int) $qrCode->branch_id
+        );
     }
 
     public function assertCanViewQr(User $user, Business $business): void
@@ -76,6 +76,11 @@ class BusinessAccess
     public function assertCanManageQr(User $user, Business $business): void
     {
         abort_unless($this->canManageQr($user, $business), 403);
+    }
+
+    public function assertCanAccessQr(User $user, Business $business, QrCode $qrCode): void
+    {
+        abort_unless($this->canAccessQr($user, $business, $qrCode), 403);
     }
 
     public function assertCanViewAnalytics(User $user, Business $business): void
