@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SmartPageController extends Controller
@@ -92,7 +93,7 @@ class SmartPageController extends Controller
 
         foreach ($data['blocks'] as $index => $block) {
             if (in_array($block['type'], ['button', 'image'], true) && empty($block['url'])) {
-                throw \\Illuminate\\Validation\\ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისა და სურათის ბლოკისთვის URL აუცილებელია.']);
+                throw ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისა და სურათის ბლოკისთვის URL აუცილებელია.']);
             }
         }
 
