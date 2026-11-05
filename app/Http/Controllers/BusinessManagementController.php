@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Business;
 use App\Models\BusinessBranch;
 use App\Models\BusinessMembership;
+use App\Support\PlanAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -28,7 +29,9 @@ class BusinessManagementController extends Controller
     {
         $this->authorizeOwner($request, $business);
 
-        $plans->assertCanCreate($business, 'branches');\n\n        $plans->assertCanCreate($business, 'team_members');\n\n        $data = $request->validate([
+        $plans->assertCanCreate($business, 'branches');
+
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:100'],
@@ -70,6 +73,7 @@ class BusinessManagementController extends Controller
     public function inviteMember(Request $request, Business $business, PlanAccess $plans): RedirectResponse
     {
         $this->authorizeOwner($request, $business);
+        $plans->assertCanCreate($business, 'team_members');
 
         $data = $request->validate([
             'email' => ['required', 'email', 'max:190', 'exists:users,email'],
