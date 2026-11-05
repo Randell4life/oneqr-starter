@@ -85,6 +85,7 @@ class SmartPageController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'is_published' => ['nullable', 'boolean'],
             'blocks' => ['required', 'array', 'min:1', 'max:30'],
+            'blocks.*.id' => ['nullable', 'integer', Rule::exists('smart_page_blocks', 'id')->where('smart_page_id', $page->id)],
             'blocks.*.type' => ['required', Rule::in(['heading', 'text', 'image', 'button', 'contact', 'catalog', 'hours'])],
             'blocks.*.title' => ['nullable', 'string', 'max:180'],
             'blocks.*.text' => ['nullable', 'string', 'max:5000'],
@@ -97,12 +98,13 @@ class SmartPageController extends Controller
             throw ValidationException::withMessages(['is_published' => 'ძირითადი გვერდი ყოველთვის გამოქვეყნებული უნდა დარჩეს, რათა QR კოდმა fallback გვერდი აჩვენოს.']);
         }
 
-        $existingBlocks = $page->blocks()->get()->values();
+        $existingBlocks = $page->blocks()->get()->keyBy('id');
         $oldImagePaths = $existingBlocks->pluck('content')->filter()->pluck('image')->filter()->all();
 
         foreach ($data['blocks'] as $index => $block) {
             $hasUpload = $request->hasFile("blocks.{$index}.image");
-            $hasExistingImage = ! empty($existingBlocks[$index]?->content['image']);
+            $existingImage = isset($block['id']) ? ($existingBlocks->get($block['id'])?->content['image'] ?? null) : null;
+            $hasExistingImage = ! empty($existingImage);
             if ($block['type'] === 'button' && empty($block['url'])) {
                 throw ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისთვის URL აუცილებელია.']);
             }
@@ -121,7 +123,7 @@ class SmartPageController extends Controller
                     'url' => $block['url'] ?? null,
                 ], fn ($value) => $value !== null && $value !== '');
 
-                $oldImage = $existingBlocks[$position]->content['image'] ?? null;
+                $oldImage = isset($block['id']) ? ($existingBlocks->get($block['id'])?->content['image'] ?? null) : null;
                 if ($request->hasFile("blocks.{$position}.image")) {
                     $content['image'] = $request->file("blocks.{$position}.image")->store('smart-pages/'.$page->id, 'public');
                 } elseif ($oldImage) {
