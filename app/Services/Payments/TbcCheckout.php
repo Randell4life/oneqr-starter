@@ -62,7 +62,8 @@ class TbcCheckout
         float $amount,
         string $returnUrl,
         string $callbackUrl,
-        ?string $userIp = null
+        ?string $userIp = null,
+        string $description = 'oneQR subscription'
     ): array {
         $payload = [
             'amount' => [
@@ -72,7 +73,7 @@ class TbcCheckout
             'returnurl' => $returnUrl,
             'callbackUrl' => $callbackUrl,
             'merchantPaymentId' => $merchantPaymentId,
-            'description' => 'oneQR subscription',
+            'description' => $description,
             'expirationMinutes' => 12,
             'preAuth' => false,
             'language' => 'KA',
