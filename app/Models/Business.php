@@ -68,6 +68,11 @@ class Business extends Model
         return $this->hasMany(BusinessOrderRequest::class);
     }
 
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(BusinessInventoryMovement::class);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(BusinessSubscription::class);
