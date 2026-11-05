@@ -3,6 +3,7 @@
 use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
+use App\Http\Controllers\BusinessSubscriptionController;
 use App\Http\Controllers\QrAnalyticsController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\QrImageController;
@@ -31,6 +32,7 @@ Route::middleware('auth')->group(function (): void {
         return view('dashboard', compact('businesses', 'teamMemberships'));
     })->name('dashboard');
 
+    Route::get('/businesses/{business}/subscription', [BusinessSubscriptionController::class, 'index'])->name('business.subscription');
     Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
     Route::post('/businesses/{business}/branches', [BusinessManagementController::class, 'storeBranch'])->name('business.branches.store');
     Route::delete('/businesses/{business}/branches/{branch}', [BusinessManagementController::class, 'destroyBranch'])->whereNumber('branch')->name('business.branches.destroy');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Business;
 use App\Models\QrCode;
 use App\Support\BusinessAccess;
+use App\Support\PlanAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -25,9 +26,11 @@ class BusinessQrController extends Controller
         ]);
     }
 
-    public function store(Request $request, Business $business, BusinessAccess $access): RedirectResponse
+    public function store(Request $request, Business $business, BusinessAccess $access, PlanAccess $plans): RedirectResponse
     {
         $access->assertCanManageQr($request->user(), $business);
+
+        $plans->assertCanCreate($business, 'qr_codes');
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
