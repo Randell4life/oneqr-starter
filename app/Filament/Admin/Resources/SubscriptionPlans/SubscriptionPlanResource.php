@@ -26,7 +26,7 @@ class SubscriptionPlanResource extends Resource
 
     protected static ?string $pluralModelLabel = 'ტარიფები';
 
-    protected static ?string $navigationGroup = 'ფინანსები';
+    protected static string|\UnitEnum|null $navigationGroup = 'ფინანსები';
 
     protected static ?int $navigationSort = 1;
 
