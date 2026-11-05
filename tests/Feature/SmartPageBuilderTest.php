@@ -6,6 +6,8 @@ use App\Models\Business;
 use App\Models\SmartPage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SmartPageBuilderTest extends TestCase
@@ -49,6 +51,39 @@ class SmartPageBuilderTest extends TestCase
         $this->assertTrue($page->fresh()->is_published);
         $this->assertDatabaseHas('smart_page_blocks', ['smart_page_id' => $page->id, 'type' => 'heading', 'sort_order' => 0]);
         $this->get(route('business.public', $business->slug))->assertOk()->assertSee('საუზმის მენიუ');
+    }
+
+    public function test_owner_can_upload_an_image_to_a_smart_page_block(): void
+    {
+        Storage::fake('public');
+        $owner = User::factory()->create();
+        $business = $this->businessFor($owner, 'image-upload-demo');
+        $page = $business->smartPages()->create([
+            'name' => 'Image Page',
+            'slug' => 'image-page',
+            'kind' => 'default',
+            'is_default' => true,
+            'is_published' => true,
+        ]);
+
+        $this->actingAs($owner)->put(route('business.smart-pages.update', [$business, $page]), [
+            'name' => 'Image Page',
+            'is_published' => '1',
+            'blocks' => [[
+                'type' => 'image',
+                'title' => 'სალონის ფოტო',
+                'text' => '',
+                'url' => '',
+                'is_visible' => '1',
+                'image' => UploadedFile::fake()->image('salon.webp', 800, 600)->mimeType('image/webp') === 'image/webp'
+                    ? UploadedFile::fake()->image('salon.jpg', 800, 600)
+                    : null,
+            ]],
+        ])->assertRedirect();
+
+        $imagePath = $page->fresh()->blocks()->firstOrFail()->content['image'];
+        Storage::disk('public')->assertExists($imagePath);
+        $this->get(route('business.public', $business->slug))->assertOk()->assertSee(Storage::disk('public')->url($imagePath));
     }
 
     public function test_default_page_cannot_be_unpublished(): void
