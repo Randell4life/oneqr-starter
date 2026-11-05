@@ -35,8 +35,5 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run database migrations
-        run: php artisan migrate --force
-
       - name: Run tests
         run: php artisan test
