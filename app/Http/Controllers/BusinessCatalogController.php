@@ -112,6 +112,7 @@ class BusinessCatalogController extends Controller
 
     private function validated(Request $request, Business $business, ?int $item = null): array
     {
+        $existing = $item ? $business->catalogItems()->findOrFail($item) : null;
         $data = $request->validate([
             'type' => ['required', Rule::in(['product', 'service'])],
             'name' => ['required', 'string', 'max:160'],
@@ -121,13 +122,14 @@ class BusinessCatalogController extends Controller
             'currency' => ['required', Rule::in(['GEL', 'USD', 'EUR'])],
             'is_available' => ['nullable', 'boolean'],
             'track_inventory' => ['nullable', 'boolean'],
-            'stock_quantity' => ['nullable', 'required_if:track_inventory,1', 'integer', 'min:0', 'max:100000000'],
+            'stock_quantity' => $existing?->track_inventory
+                ? ['nullable', 'integer', 'min:0', 'max:100000000']
+                : ['nullable', 'required_if:track_inventory,1', 'integer', 'min:0', 'max:100000000'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0', 'max:100000000'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:65535'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
-        $existing = $item ? $business->catalogItems()->findOrFail($item) : null;
         if ($existing?->track_inventory && $data['type'] !== 'product') {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'type' => 'მარაგის აღრიცხვაში მყოფი პროდუქტის სერვისად გადაკეთება შეუძლებელია.',
