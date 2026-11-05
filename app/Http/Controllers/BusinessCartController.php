@@ -43,6 +43,15 @@ class BusinessCartController extends Controller
     {
         $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
         $catalogItem = $business->catalogItems()->where('is_available', true)->findOrFail($item);
+        if ($catalogItem->price === null) {
+            return back()->withErrors(['cart' => 'ამ სერვისის ფასი შეთანხმებითაა და კალათაში ვერ დაემატება.']);
+        }
+
+        $cart = session()->get($this->cartKey($business), []);
+        $existingCurrencies = $business->catalogItems()->whereIn('id', array_keys($cart))->pluck('currency')->unique();
+        if ($existingCurrencies->isNotEmpty() && ($existingCurrencies->count() > 1 || $existingCurrencies->first() !== $catalogItem->currency)) {
+            return back()->withErrors(['cart' => 'ერთ კალათაში ერთი ვალუტის პროდუქტების გაერთიანებაა შესაძლებელი.']);
+        }
         $data = $request->validate(['quantity' => ['nullable', 'integer', 'min:1', 'max:100']]);
         $quantity = (int) ($data['quantity'] ?? 1);
         $cart = session()->get($this->cartKey($business), []);
