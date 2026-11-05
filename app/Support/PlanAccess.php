@@ -33,6 +33,7 @@ class PlanAccess
             'qr_codes' => $business->qrCodes()->count(),
             'branches' => $business->branches()->count(),
             'team_members' => $business->memberships()->whereIn('status', ['active', 'invited'])->count(),
+            'catalog_items' => $business->catalogItems()->count(),
         ];
     }
 
@@ -58,6 +59,7 @@ class PlanAccess
                 'qr_codes' => 'QR კოდების',
                 'branches' => 'ფილიალების',
                 'team_members' => 'აქტიური თანამშრომლების',
+                'catalog_items' => 'კატალოგის ჩანაწერების',
             ];
 
             $label = $labels[$feature] ?? 'რესურსის';
