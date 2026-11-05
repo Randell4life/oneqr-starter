@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
+use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 
 Artisan::command('inspire', function () {
