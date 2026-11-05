@@ -31,8 +31,8 @@ class PlatformAdminPanelTest extends TestCase
         $this->actingAs($admin)->get('/admin/businesses')->assertOk();
         $this->actingAs($admin)->get('/admin/users')->assertOk();
         $this->actingAs($admin)->get('/admin/subscription-plans')->assertOk();
-        $this->actingAs($admin)->get('/admin/business-subscription-payments')->assertOk();
-        $this->actingAs($admin)->get('/admin/business-subscriptions')->assertOk();
+        $this->actingAs($admin)->get('/admin/payments')->assertOk();
+        $this->actingAs($admin)->get('/admin/subscriptions')->assertOk();
     }
 
     public function test_platform_admin_can_update_business_status_and_subscription_plan_price(): void
