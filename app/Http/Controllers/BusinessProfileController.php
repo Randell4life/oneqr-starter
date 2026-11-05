@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
+use App\Services\SmartPageResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -66,7 +67,9 @@ class BusinessProfileController extends Controller
             ->with(['catalogItems' => fn ($query) => $query->where('is_available', true)->orderBy('sort_order')->orderBy('name')])
             ->firstOrFail();
 
-        $smartPage = $resolver->resolve($business);\n\n        return view('business.public-profile', compact('business', 'smartPage'));
+        $smartPage = $resolver->resolve($business);
+
+        return view('business.public-profile', compact('business', 'smartPage'));
     }
 
     private function authorizeOwner(Request $request, Business $business): void
