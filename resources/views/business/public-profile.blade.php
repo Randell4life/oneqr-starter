@@ -11,6 +11,9 @@
 <section class="card" id="catalog"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>პროდუქტები და სერვისები</h2><a class="action" href="{{ route('business.cart.show',$business->slug) }}">კალათა</a></div>
 @if(session('cart_status'))<p class="muted" style="color:#a8f0d1">{{ session('cart_status') }}</p>@endif
 @if(session('order_success'))<div class="muted" style="color:#a8f0d1">შეკვეთა მიღებულია! ნომერი: <strong>{{ session('order_success.number') }}</strong> · ჯამი: {{ session('order_success.total') }}</div>@endif
+@if(session('payment_success'))<p class="muted" style="color:#a8f0d1">{{ session('payment_success') }}</p>@endif
+@if(session('payment_error'))<p class="muted" style="color:#ffc2d0">{{ session('payment_error') }}</p>@endif
+@if(session('payment_pending'))<p class="muted">{{ session('payment_pending') }}</p>@endif
 @if(session('order_status'))<p class="muted" style="color:#a8f0d1">{{ session('order_status') }}</p>@endif
 @if($errors->any())<div class="muted" style="color:#ffc2d0">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">

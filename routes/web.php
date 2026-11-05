@@ -4,6 +4,7 @@ use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\BusinessCatalogController;
 use App\Http\Controllers\BusinessCartController;
+use App\Http\Controllers\BusinessOrderPaymentController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
 use App\Http\Controllers\BusinessSubscriptionController;
@@ -68,6 +69,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
+
+    Route::get('/payments/tbc/orders/return/{uuid}', [BusinessOrderPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('business.orders.payment.return');
 
 Route::get('/b/{slug}/cart', [BusinessCartController::class, 'show'])->name('business.cart.show');
 Route::post('/b/{slug}/cart/{item}', [BusinessCartController::class, 'add'])->whereNumber('item')->middleware('throttle:30,1')->name('business.cart.add');

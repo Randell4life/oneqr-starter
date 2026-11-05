@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Business;
 use App\Models\BusinessCatalogItem;
 use App\Models\BusinessOrder;
+use App\Models\BusinessOrderPayment;
+use App\Services\Payments\TbcCheckout;
 use App\Support\BusinessAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -83,7 +85,7 @@ class BusinessCartController extends Controller
         return back()->with('cart_status', 'პროდუქტი კალათიდან წაიშალა.');
     }
 
-    public function checkout(Request $request, string $slug): RedirectResponse
+    public function checkout(Request $request, string $slug, TbcCheckout $tbc): RedirectResponse
     {
         $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
         $data = $request->validate([
@@ -92,8 +94,12 @@ class BusinessCartController extends Controller
             'customer_email' => ['nullable', 'email', 'max:190'],
             'customer_address' => ['nullable', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:1500'],
-            'payment_method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer'])],
+            'payment_method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer', 'tbc_card'])],
         ]);
+
+        if ($data['payment_method'] === 'tbc_card' && (! config('tbc.enabled') || ! config('tbc.api_key'))) {
+            return back()->withInput()->withErrors(['payment_method' => 'ბარათით გადახდა ამჟამად მიუწვდომელია.']);
+        }
 
         $cart = session()->get($this->cartKey($business), []);
         if ($cart === []) {
@@ -114,6 +120,11 @@ class BusinessCartController extends Controller
             }
 
             $currencies = $items->pluck('currency')->unique();
+            if ($data['payment_method'] === 'tbc_card' && $currencies->first() !== 'GEL') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'payment_method' => 'TBC ბარათით გადახდა ამ ეტაპზე მხოლოდ GEL ვალუტაშია შესაძლებელი.',
+                ]);
+            }
             if ($currencies->count() !== 1) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'cart' => 'ერთ შეკვეთაში სხვადასხვა ვალუტის პროდუქტების გაერთიანება შეუძლებელია.',
@@ -155,6 +166,44 @@ class BusinessCartController extends Controller
         });
 
         session()->forget($this->cartKey($business));
+
+        if ($order->payment_method === 'tbc_card') {
+            $payment = BusinessOrderPayment::create([
+                'uuid' => (string) Str::uuid(),
+                'business_order_id' => $order->id,
+                'provider' => 'tbc',
+                'status' => 'pending',
+                'amount' => $order->total,
+                'currency' => $order->currency,
+                'merchant_payment_id' => 'OQRORD'.Str::upper(Str::random(20)),
+                'expires_at' => now()->addMinutes(12),
+            ]);
+
+            try {
+                $checkout = $tbc->createPayment(
+                    $payment->merchant_payment_id,
+                    (float) $payment->amount,
+                    route('business.orders.payment.return', $payment->uuid, true),
+                    route('payments.tbc.callback', [], true),
+                    $request->ip(),
+                    'oneQR order '.$order->order_number
+                );
+                $payment->update([
+                    'provider_payment_id' => $checkout['pay_id'],
+                    'checkout_url' => $checkout['checkout_url'],
+                    'status' => 'initiated',
+                ]);
+            } catch (\RuntimeException $exception) {
+                report($exception);
+                $payment->update(['status' => 'failed', 'failure_reason' => 'TBC payment initialization failed.']);
+                $order->update(['payment_status' => 'failed']);
+
+                return redirect()->route('business.public', $business->slug)
+                    ->with('payment_error', 'ბანკთან დაკავშირება ვერ მოხერხდა. შეკვეთა შენარჩუნებულია, სცადე მოგვიანებით ან დაუკავშირდი ბიზნესს.');
+            }
+
+            return redirect()->away($payment->checkout_url);
+        }
 
         return redirect()->route('business.public', $business->slug)
             ->with('order_success', ['number' => $order->order_number, 'total' => number_format((float) $order->total, 2).' '.$order->currency]);

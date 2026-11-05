@@ -32,7 +32,12 @@ Register this exact HTTPS URL in the TBC E-Commerce merchant dashboard. TBC's do
 - `185.52.80.44`
 - `185.52.80.45`
 
-The callback only supplies a payment ID. oneQR does not trust the callback as proof of payment: it requests payment details from TBC and verifies the payment ID, final status, amount and currency before activating a subscription.
+The callback only supplies a payment ID. oneQR does not trust the callback as proof of payment: it requests payment details from TBC and verifies the payment ID, final status, amount, currency and merchant reference before activating a subscription or marking an order paid.
+
+## Customer order payments
+The public cart checkout offers TBC card payment only when TBC is enabled and the order currency is GEL. The customer is redirected to TBC's hosted checkout page. The same callback endpoint dispatches the payment to either the subscription or order payment record. An order is marked paid only after the server verifies `payId`, `merchantPaymentId`, successful final status, exact amount and GEL currency. A failed or mismatched payment never marks the order as paid. Customers return to the public business page after checkout; the order remains available to the business even if payment fails.
+
+Card payments are one-time payments. This integration does not store card data and does not enable recurring charges.
 
 ## Plan pricing
 The Starter, Pro and Business plan prices are intentionally unset. Set the approved GEL monthly price in `subscription_plans.monthly_price` only after commercial approval. The checkout endpoint rejects plans without a positive GEL price.
