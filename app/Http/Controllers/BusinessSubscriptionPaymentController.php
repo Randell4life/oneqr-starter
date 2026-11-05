@@ -6,13 +6,11 @@ use App\Models\Business;
 use App\Models\BusinessSubscriptionPayment;
 use App\Models\SubscriptionPlan;
 use App\Services\Payments\TbcCheckout;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 use RuntimeException;
 
 class BusinessSubscriptionPaymentController extends Controller
@@ -27,7 +25,7 @@ class BusinessSubscriptionPaymentController extends Controller
 
         abort_unless($plan->is_active, 404);
 
-        if (! config('services.tbc.enabled')) {
+        if (! config('tbc.enabled')) {
             throw ValidationException::withMessages([
                 'payment' => 'TBC გადახდა ჯერ არ არის კონფიგურირებული. დაამატე მერჩანტის მონაცემები .env ფაილში.',
             ]);
@@ -154,7 +152,7 @@ class BusinessSubscriptionPaymentController extends Controller
         $providerAmount = is_array($details['amount'] ?? null)\n            ? ($details['amount']['total'] ?? -1)\n            : ($details['amount'] ?? -1);\n        $amount = number_format((float) $providerAmount, 2, '.', '');
         $expectedAmount = number_format((float) $payment->amount, 2, '.', '');
 
-        if ($amount !== $expectedAmount || ($details['currency'] ?? $details['amount']['currency'] ?? null) !== $payment->currency) {
+        if ($amount !== $expectedAmount || (is_array($details['amount'] ?? null) ? ($details['amount']['currency'] ?? null) : ($details['currency'] ?? null)) !== $payment->currency) {
             report(new RuntimeException('TBC payment amount or currency mismatch for payment '.$payment->id));
             return;
         }
