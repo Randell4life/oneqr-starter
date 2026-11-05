@@ -150,6 +150,29 @@ class BusinessCartController extends Controller
             ->with('order_success', ['number' => $order->order_number, 'total' => number_format((float) $order->total, 2).' '.$order->currency]);
     }
 
+    public function orders(Request $request, Business $business, BusinessAccess $access): View
+    {
+        $access->assertCanViewQr($request->user(), $business);
+
+        return view('business.orders', [
+            'business' => $business,
+            'orders' => $business->orders()->with('items')->latest()->paginate(25),
+            'canManage' => $access->canManageQr($request->user(), $business),
+        ]);
+    }
+
+    public function updateStatus(Request $request, Business $business, int $order, BusinessAccess $access): RedirectResponse
+    {
+        $access->assertCanManageQr($request->user(), $business);
+        $record = $business->orders()->findOrFail($order);
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['new', 'confirmed', 'processing', 'completed', 'cancelled'])],
+        ]);
+        $record->update($data);
+
+        return back()->with('status', 'შეკვეთის სტატუსი განახლდა.');
+    }
+
     private function cartKey(Business $business): string
     {
         return 'oneqr_cart_'.$business->id;
