@@ -151,10 +151,10 @@ class BusinessSubscriptionPaymentController extends Controller
             return;
         }
 
-        $amount = number_format((float) ($details['amount'] ?? -1), 2, '.', '');
+        $providerAmount = is_array($details['amount'] ?? null)\n            ? ($details['amount']['total'] ?? -1)\n            : ($details['amount'] ?? -1);\n        $amount = number_format((float) $providerAmount, 2, '.', '');
         $expectedAmount = number_format((float) $payment->amount, 2, '.', '');
 
-        if ($amount !== $expectedAmount || ($details['currency'] ?? null) !== $payment->currency) {
+        if ($amount !== $expectedAmount || ($details['currency'] ?? $details['amount']['currency'] ?? null) !== $payment->currency) {
             report(new RuntimeException('TBC payment amount or currency mismatch for payment '.$payment->id));
             return;
         }
