@@ -4,6 +4,7 @@ use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
 use App\Http\Controllers\BusinessSubscriptionController;
+use App\Http\Controllers\BusinessSubscriptionPaymentController;
 use App\Http\Controllers\QrAnalyticsController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\QrImageController;
@@ -19,6 +20,9 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [SessionController::class, 'store'])->name('login.store');
 });
 
+Route::post('/payments/tbc/callback', [BusinessSubscriptionPaymentController::class, 'callback'])->middleware('throttle:60,1')->name('payments.tbc.callback');
+
+
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', function () {
         $user = auth()->user();
@@ -33,6 +37,10 @@ Route::middleware('auth')->group(function (): void {
     })->name('dashboard');
 
     Route::get('/businesses/{business}/subscription', [BusinessSubscriptionController::class, 'index'])->name('business.subscription');
+    Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->middleware('throttle:5,1')->name('business.subscription.checkout');
+    Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('payments.tbc.return');
+    Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->name('business.subscription.checkout');
+    Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->name('payments.tbc.return');
     Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
     Route::post('/businesses/{business}/branches', [BusinessManagementController::class, 'storeBranch'])->name('business.branches.store');
     Route::delete('/businesses/{business}/branches/{branch}', [BusinessManagementController::class, 'destroyBranch'])->whereNumber('branch')->name('business.branches.destroy');

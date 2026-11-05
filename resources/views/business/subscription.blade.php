@@ -19,6 +19,9 @@ li{margin:9px 0;color:#d8d2e6}.btn{display:inline-block;margin-top:14px;padding:
 <body>
 <header><div class="logo">one<span>QR</span></div><a href="{{ route('dashboard') }}">← კაბინეტში დაბრუნება</a></header>
 <main>
+@if(session('success'))<div class="notice">{{ session('success') }}</div>@endif
+@if(session('error'))<div class="notice">{{ session('error') }}</div>@endif
+@if($errors->has('payment'))<div class="notice">{{ $errors->first('payment') }}</div>@endif
 <h1>გამოწერა და გეგმები</h1><p class="muted">{{ $business->name }} — მართე ლიმიტები და შეარჩიე ბიზნესის მასშტაბზე მორგებული პაკეტი.</p>
 <section class="panel">
 <div class="tag">მიმდინარე გეგმა</div><h2>{{ $currentPlan->name }}</h2>
@@ -48,9 +51,32 @@ li{margin:9px 0;color:#d8d2e6}.btn{display:inline-block;margin-top:14px;padding:
 @elseif($plan->slug === 'free')
 <a class="btn" href="{{ route('dashboard') }}">კაბინეტში დაბრუნება</a>
 @else
-<span class="muted">გადახდის ინტეგრაცია მალე დაემატება</span>
+@if(config('tbc.enabled') && $plan->monthly_price !== null && (float)$plan->monthly_price > 0)
+<form method="POST" action="{{ route('business.subscription.checkout', [$business, $plan]) }}">
+@csrf
+<button class="btn" type="submit">TBC-ით გადახდა</button>
+</form>
+@elseif($plan->monthly_price === null)
+<span class="muted">ფასი ჯერ არ არის განსაზღვრული</span>
+@else
+<span class="muted">TBC გადახდის მონაცემები ჯერ არ არის კონფიგურირებული</span>
+@endif
 @endif
 </article>
 @endforeach
 </div>
+<section class="panel" style="margin-top:28px">
+<h2>გადახდების ისტორია</h2>
+@if($payments->isEmpty())
+<p class="muted">გადახდები ჯერ არ არის.</p>
+@else
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left">
+<thead><tr><th>თარიღი</th><th>გეგმა</th><th>თანხა</th><th>სტატუსი</th><th>პროვაიდერი</th></tr></thead>
+<tbody>
+@foreach($payments as $payment)
+<tr><td>{{ $payment->created_at->format('d.m.Y H:i') }}</td><td>{{ $payment->plan->name }}</td><td>{{ number_format((float)$payment->amount,2) }} {{ $payment->currency }}</td><td>{{ $payment->status }}</td><td>{{ strtoupper($payment->provider) }}</td></tr>
+@endforeach
+</tbody></table></div>
+@endif
+</section>
 </main></body></html>
