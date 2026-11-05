@@ -41,6 +41,11 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->middleware('throttle:5,1')->name('business.subscription.checkout');
     Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('payments.tbc.return');
     Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
+    Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');
+    Route::post('/businesses/{business}/catalog', [BusinessCatalogController::class, 'store'])->name('business.catalog.store');
+    Route::put('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'update'])->whereNumber('item')->name('business.catalog.update');
+    Route::delete('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'destroy'])->whereNumber('item')->name('business.catalog.destroy');
+    Route::patch('/businesses/{business}/orders/{order}', [BusinessCatalogController::class, 'updateOrderStatus'])->whereNumber('order')->name('business.orders.status');
     Route::get('/businesses/{business}/profile', [BusinessProfileController::class, 'edit'])->name('business.profile.edit');
     Route::put('/businesses/{business}/profile', [BusinessProfileController::class, 'update'])->name('business.profile.update');
     Route::post('/businesses/{business}/branches', [BusinessManagementController::class, 'storeBranch'])->name('business.branches.store');
@@ -60,5 +65,6 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 
+Route::post('/b/{slug}/catalog/{item}/order', [BusinessCatalogController::class, 'submitOrder'])->whereNumber('item')->middleware('throttle:10,1')->name('business.catalog.order');
 Route::get('/b/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public');
 Route::get('/q/{publicId}', QrRedirectController::class)->whereUuid('publicId')->name('qr.redirect');
