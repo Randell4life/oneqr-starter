@@ -120,6 +120,11 @@ class BusinessCartController extends Controller
             }
 
             $currencies = $items->pluck('currency')->unique();
+            if ($data['payment_method'] === 'tbc_card' && $currencies->first() !== 'GEL') {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                    'payment_method' => 'TBC ბარათით გადახდა ამ ეტაპზე მხოლოდ GEL ვალუტაშია შესაძლებელი.',
+                ]);
+            }
             if ($currencies->count() !== 1) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'cart' => 'ერთ შეკვეთაში სხვადასხვა ვალუტის პროდუქტების გაერთიანება შეუძლებელია.',
