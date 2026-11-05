@@ -34,4 +34,14 @@ class Business extends Model
     {
         return $this->hasMany(QrCode::class);
     }
+
+    public function branches(): HasMany
+    {
+        return $this->hasMany(BusinessBranch::class);
+    }
+
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(BusinessMembership::class);
+    }
 }

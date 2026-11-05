@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
 use App\Http\Controllers\QrAnalyticsController;
@@ -23,6 +24,14 @@ Route::middleware('auth')->group(function (): void {
 
         return view('dashboard', compact('businesses'));
     })->name('dashboard');
+
+    Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
+    Route::post('/businesses/{business}/branches', [BusinessManagementController::class, 'storeBranch'])->name('business.branches.store');
+    Route::delete('/businesses/{business}/branches/{branch}', [BusinessManagementController::class, 'destroyBranch'])->whereNumber('branch')->name('business.branches.destroy');
+    Route::post('/businesses/{business}/members', [BusinessManagementController::class, 'inviteMember'])->name('business.members.invite');
+    Route::delete('/businesses/{business}/members/{membership}', [BusinessManagementController::class, 'destroyMember'])->whereNumber('membership')->name('business.members.destroy');
+    Route::get('/team/invitations', [BusinessManagementController::class, 'invitations'])->name('team.invitations');
+    Route::post('/team/invitations/{membership}/accept', [BusinessManagementController::class, 'acceptInvitation'])->whereNumber('membership')->name('team.invitations.accept');
 
     Route::get('/businesses/{business}/qr', [BusinessQrController::class, 'index'])->name('business.qr.index');
     Route::post('/businesses/{business}/qr', [BusinessQrController::class, 'store'])->name('business.qr.store');

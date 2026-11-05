@@ -33,6 +33,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Business::class, 'owner_id');
     }
 
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(BusinessMembership::class);
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin' && $this->is_platform_admin;
