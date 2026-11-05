@@ -32,7 +32,7 @@ class PlanAccess
         return [
             'qr_codes' => $business->qrCodes()->count(),
             'branches' => $business->branches()->count(),
-            'team_members' => $business->memberships()->where('status', 'active')->count(),
+            'team_members' => $business->memberships()->whereIn('status', ['active', 'invited'])->count(),
         ];
     }
 
