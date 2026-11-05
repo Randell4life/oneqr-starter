@@ -13,11 +13,9 @@ use RuntimeException;
 
 class BusinessOrderPaymentController extends Controller
 {
-    public function callback(Request $request, TbcCheckout $tbc): \Illuminate\Http\Response
+    public function callbackPayment(string $payId, TbcCheckout $tbc): \\Illuminate\\Http\\Response
     {
-        $payId = $request->input('PaymentId') ?? $request->input('paymentId');
-
-        if (! is_string($payId) || $payId === '') {
+        if ($payId === '') {
             return response('Invalid payment reference', 400);
         }
 
