@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
+use App\Models\SubscriptionPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,11 +39,20 @@ class BusinessRegistrationController extends Controller
                 $slug = $baseSlug.'-'.$suffix++;
             }
 
-            $user->businesses()->create([
+            $business = $user->businesses()->create([
                 'name' => $validated['business_name'],
                 'slug' => $slug,
                 'business_type' => $validated['business_type'],
                 'status' => 'pending',
+            ]);
+
+            $freePlan = SubscriptionPlan::where('slug', 'free')->firstOrFail();
+
+            $business->subscriptions()->create([
+                'subscription_plan_id' => $freePlan->id,
+                'status' => 'active',
+                'starts_at' => now(),
+                'auto_renew' => false,
             ]);
 
             return $user;
