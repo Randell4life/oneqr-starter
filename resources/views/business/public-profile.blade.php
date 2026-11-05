@@ -14,7 +14,7 @@
 <section class="card" style="border-color:color-mix(in srgb,var(--accent) 35%,var(--line))">
 @if($block->type==='heading')<h2 style="font-size:28px">{{ $block->content['text'] ?? $block->title }}</h2>
 @elseif($block->type==='text')@if($block->title)<h2>{{ $block->title }}</h2>@endif<p class="muted" style="white-space:pre-line">{{ $block->content['text'] ?? '' }}</p>
-@elseif($block->type==='image')@if(!empty($block->content['text']))<img src="{{ $block->content['text'] }}" alt="{{ $block->title ?? $business->name }}" loading="lazy" style="width:100%;max-height:420px;object-fit:cover;border-radius:16px">@endif
+@elseif($block->type==='image')@if(!empty($block->content['url']))<img src="{{ $block->content['url'] }}" alt="{{ $block->title ?? $business->name }}" loading="lazy" style="width:100%;max-height:420px;object-fit:cover;border-radius:16px">@endif
 @elseif($block->type==='button')@if($block->title && !empty($block->content['url']))<a class="action" href="{{ $block->content['url'] }}" target="_blank" rel="noopener noreferrer">{{ $block->title }} ↗</a>@endif
 @elseif($block->type==='contact')<h2>{{ $block->title ?: 'დაგვიკავშირდი' }}</h2><div class="actions">@if($business->phone)<a class="action" href="tel:{{ preg_replace('/[^0-9+]/','',$business->phone) }}">დარეკვა</a>@endif @if($business->email)<a class="action secondary" href="mailto:{{ $business->email }}">ელფოსტა</a>@endif</div>
 @elseif($block->type==='catalog')<h2>{{ $block->title ?: 'კატალოგი' }}</h2><a class="action" href="#catalog">პროდუქტებისა და სერვისების ნახვა ↓</a>
