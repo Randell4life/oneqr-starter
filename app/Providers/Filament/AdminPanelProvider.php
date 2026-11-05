@@ -10,6 +10,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use App\Filament\Admin\Widgets\PlatformOverview;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -33,20 +34,21 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(
                 in: app_path('Filament/Admin/Resources'),
-                for: 'App\\Filament\\Admin\\Resources'
+                for: 'App\Filament\Admin\Resources'
             )
             ->discoverPages(
                 in: app_path('Filament/Admin/Pages'),
-                for: 'App\\Filament\\Admin\\Pages'
+                for: 'App\Filament\Admin\Pages'
             )
             ->pages([
                 Dashboard::class,
             ])
             ->discoverWidgets(
                 in: app_path('Filament/Admin/Widgets'),
-                for: 'App\\Filament\\Admin\\Widgets'
+                for: 'App\Filament\Admin\Widgets'
             )
             ->widgets([
+                PlatformOverview::class,
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
