@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
-use App\Models\QrCode as BusinessQrCode;
+use App\Support\BusinessAccess;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Illuminate\Http\Request;
@@ -11,13 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class QrImageController extends Controller
 {
-    public function show(Request $request, Business $business, int $qrCode): Response
+    public function show(Request $request, Business $business, int $qrCode, BusinessAccess $access): Response
     {
-        abort_unless($business->owner_id === $request->user()->id, 403);
-
         $record = $business->qrCodes()->findOrFail($qrCode);
-        $target = route('qr.redirect', $record->public_id);
+        $access->assertCanAccessQr($request->user(), $business, $record);
 
+        $target = route('qr.redirect', $record->public_id);
         $options = new QROptions([
             'outputType' => QRCode::OUTPUT_MARKUP_SVG,
             'eccLevel' => QRCode::ECC_M,
