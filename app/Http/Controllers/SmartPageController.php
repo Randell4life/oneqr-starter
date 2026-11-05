@@ -17,6 +17,7 @@ class SmartPageController extends Controller
     public function index(Request $request, Business $business): View
     {
         $this->authorizeOwner($request, $business);
+        $this->ensureDefaultPage($business);
 
         return view('business.smart-pages.index', [
             'business' => $business,
@@ -27,6 +28,7 @@ class SmartPageController extends Controller
     public function store(Request $request, Business $business): RedirectResponse
     {
         $this->authorizeOwner($request, $business);
+        $this->ensureDefaultPage($business);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'kind' => ['required', Rule::in(['default', 'variant'])],
@@ -88,8 +90,14 @@ class SmartPageController extends Controller
             'blocks.*.is_visible' => ['nullable', 'boolean'],
         ]);
 
+        foreach ($data['blocks'] as $index => $block) {
+            if (in_array($block['type'], ['button', 'image'], true) && empty($block['url'])) {
+                throw \\Illuminate\\Validation\\ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისა და სურათის ბლოკისთვის URL აუცილებელია.']);
+            }
+        }
+
         DB::transaction(function () use ($page, $data): void {
-            $page->update(['name' => $data['name'], 'is_published' => request()->boolean('is_published')]);
+            $page->update(['name' => $data['name'], 'is_published' => (bool) ($data['is_published'] ?? false)]);
             $page->blocks()->delete();
 
             foreach (array_values($data['blocks']) as $position => $block) {
@@ -149,6 +157,27 @@ class SmartPageController extends Controller
         $business->smartPageSchedules()->whereKey($schedule)->firstOrFail()->delete();
 
         return back()->with('status', 'განრიგი წაიშალა.');
+    }
+
+    private function ensureDefaultPage(Business $business): void
+    {
+        if ($business->smartPages()->where('is_default', true)->exists()) {
+            return;
+        }
+
+        $page = $business->smartPages()->create([
+            'name' => $business->name,
+            'slug' => 'main',
+            'kind' => 'default',
+            'is_default' => true,
+            'is_published' => true,
+        ]);
+
+        $page->blocks()->createMany([
+            ['type' => 'heading', 'title' => $business->name, 'content' => ['text' => $business->name], 'sort_order' => 0],
+            ['type' => 'text', 'title' => $business->tagline, 'content' => ['text' => $business->description ?: ($business->tagline ?: 'მოგესალმებით!')], 'sort_order' => 1],
+            ['type' => 'contact', 'title' => 'დაგვიკავშირდი', 'content' => [], 'sort_order' => 2],
+        ]);
     }
 
     private function authorizeOwner(Request $request, Business $business): void
