@@ -54,6 +54,14 @@ Route::middleware('auth')->group(function (): void {
     Route::put('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'update'])->whereNumber('item')->name('business.catalog.update');
     Route::delete('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'destroy'])->whereNumber('item')->name('business.catalog.destroy');
     Route::patch('/businesses/{business}/orders/{order}', [BusinessCatalogController::class, 'updateOrderStatus'])->whereNumber('order')->name('business.orders.status');
+    Route::get('/businesses/{business}/smart-pages', [SmartPageController::class, 'index'])->name('business.smart-pages.index');
+    Route::post('/businesses/{business}/smart-pages', [SmartPageController::class, 'store'])->name('business.smart-pages.store');
+    Route::get('/businesses/{business}/smart-pages/{page}/edit', [SmartPageController::class, 'edit'])->name('business.smart-pages.edit');
+    Route::put('/businesses/{business}/smart-pages/{page}', [SmartPageController::class, 'update'])->name('business.smart-pages.update');
+    Route::delete('/businesses/{business}/smart-pages/{page}', [SmartPageController::class, 'destroy'])->name('business.smart-pages.destroy');
+    Route::post('/businesses/{business}/smart-pages/{page}/schedules', [SmartPageController::class, 'storeSchedule'])->name('business.smart-pages.schedules.store');
+    Route::delete('/businesses/{business}/smart-page-schedules/{schedule}', [SmartPageController::class, 'destroySchedule'])->whereNumber('schedule')->name('business.smart-pages.schedules.destroy');
+
     Route::get('/businesses/{business}/profile', [BusinessProfileController::class, 'edit'])->name('business.profile.edit');
     Route::put('/businesses/{business}/profile', [BusinessProfileController::class, 'update'])->name('business.profile.update');
     Route::post('/businesses/{business}/branches', [BusinessManagementController::class, 'storeBranch'])->name('business.branches.store');
