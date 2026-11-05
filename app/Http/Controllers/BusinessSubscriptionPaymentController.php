@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Models\BusinessSubscriptionPayment;
+use App\Models\BusinessOrderPayment;
 use App\Models\SubscriptionPlan;
 use App\Services\Payments\TbcCheckout;
 use Illuminate\Http\RedirectResponse;
@@ -86,7 +87,7 @@ class BusinessSubscriptionPaymentController extends Controller
             return response('Invalid payment reference', 400);
         }
 
-        $payment = BusinessSubscriptionPayment::query()
+        $orderPayment = BusinessOrderPayment::query()\n            ->where('provider', 'tbc')\n            ->where('provider_payment_id', $payId)\n            ->exists();\n\n        if ($orderPayment) {\n            return $orderPayments->callbackPayment($payId, $tbc);\n        }\n\n        $payment = BusinessSubscriptionPayment::query()
             ->where('provider', 'tbc')
             ->where('provider_payment_id', $payId)
             ->first();
