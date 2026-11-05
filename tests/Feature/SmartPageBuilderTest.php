@@ -35,7 +35,7 @@ class SmartPageBuilderTest extends TestCase
             'kind' => 'default',
         ])->assertRedirect();
 
-        $page = $business->smartPages()->firstOrFail();
+        $page = $business->smartPages()->where('slug', 'morning-menu')->firstOrFail();
 
         $this->actingAs($owner)->put(route('business.smart-pages.update', [$business, $page]), [
             'name' => 'Morning Menu',
