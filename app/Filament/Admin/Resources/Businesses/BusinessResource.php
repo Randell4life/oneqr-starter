@@ -26,7 +26,7 @@ class BusinessResource extends Resource
 
     protected static ?string $pluralModelLabel = 'ბიზნესები';
 
-    protected static ?string $navigationGroup = 'პლატფორმის მართვა';
+    protected static string|\UnitEnum|null $navigationGroup = 'პლატფორმის მართვა';
 
     protected static ?int $navigationSort = 1;
 
