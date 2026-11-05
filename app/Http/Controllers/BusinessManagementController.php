@@ -1,15 +1,15 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\Business;
-use App\\Models\\BusinessBranch;
-use App\\Models\\BusinessMembership;
-use Illuminate\\Http\\RedirectResponse;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Str;
-use Illuminate\\Validation\\Rule;
-use Illuminate\\View\\View;
+use App\Models\Business;
+use App\Models\BusinessBranch;
+use App\Models\BusinessMembership;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class BusinessManagementController extends Controller
 {
@@ -76,7 +76,7 @@ class BusinessManagementController extends Controller
             'branch_id' => ['nullable', 'integer', Rule::exists('business_branches', 'id')->where('business_id', $business->id)],
         ]);
 
-        $member = \\App\\Models\\User::where('email', $data['email'])->firstOrFail();
+        $member = \App\Models\User::where('email', $data['email'])->firstOrFail();
         abort_if($member->id === $business->owner_id, 422, 'ბიზნესის მფლობელს თანამშრომლად ვერ დაამატებთ.');
 
         $existing = $business->memberships()->where('user_id', $member->id)->first();
