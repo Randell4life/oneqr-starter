@@ -88,7 +88,7 @@ class BusinessSubscriptionPaymentController extends Controller
             return response('Invalid payment reference', 400);
         }
 
-        $orderPayment = BusinessOrderPayment::query()\n            ->where('provider', 'tbc')\n            ->where('provider_payment_id', $payId)\n            ->exists();\n\n        if ($orderPayment) {\n            return $orderPayments->callbackPayment($payId, $tbc);\n        }\n\n        $orderPayment = BusinessOrderPayment::query()
+        $orderPayment = BusinessOrderPayment::query()
             ->where('provider', 'tbc')
             ->where('provider_payment_id', $payId)
             ->exists();
