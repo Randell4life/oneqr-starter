@@ -1,58 +1,122 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# oneQR
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**ONE SCAN. ENDLESS POSSIBILITIES.**
 
-## About Laravel
+oneQR არის მრავალბიზნესიანი SaaS პლატფორმა: თითოეულ ბიზნესს აქვს საკუთარი პროფილი, მართვის პანელი, Smart Page-ები და დინამიკური QR კოდები.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## მთავარი პრინციპი
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**ერთი QR კოდი → ერთი ჭკვიანი გვერდი → ბევრი შესაძლებლობა.**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+QR კოდი მიმართავს მუდმივ oneQR მისამართზე. ბიზნესს შეუძლია შეცვალოს Smart Page-ის შიგთავსი, დროითი ვერსია და შეთავაზებები ისე, რომ უკვე დაბეჭდილი QR კოდის ხელახლა შექმნა საჭირო არ გახდეს.
 
-## Learning Laravel
+## ტექნოლოგიები
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3+
+- Laravel 13
+- MySQL (SQLite მხარდაჭერილია ტესტებისთვის)
+- Filament 5
+- Blade + responsive CSS
+- GitHub Actions CI
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+პროექტი განზრახ რჩება Laravel + MySQL-ზე: არსებული ავტორიზაცია, მრავალბიზნესიანი წვდომის კონტროლი, გამოწერები, TBC გადახდები, QR ანალიტიკა და კატალოგი უკვე ამ არქიტექტურაშია. MVP-ისთვის Next.js/Supabase-ზე გადასვლა დამატებით ხარჯსა და თავიდან დაწერის რისკს შექმნიდა.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## ფუნქციები
 
-## Agentic Development
+### პლატფორმა
+- რეგისტრაცია და ავტორიზაცია
+- ბიზნესების რეგისტრაცია და იზოლირებული მონაცემები
+- ბიზნესის მფლობელი, მენეჯერი და თანამშრომელი
+- ფილიალები და როლებზე დაფუძნებული წვდომა
+- Free / Starter / Pro / Business გამოწერები
+- TBC E-Commerce გამოწერის გადახდები
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Smart Page
+- ბიზნესის საჯარო პროფილი `/p/{slug}`
+- ლოგო, ყდის ფოტო, აღწერა, კონტაქტი და ბრენდის ფერი
+- რამდენიმე გვერდის ვერსია
+- ბლოკების დამატება, წაშლა, დამალვა და გადაადგილება
+- სათაური, ტექსტი, სურათი, ღილაკი, კონტაქტი, კატალოგი და სამუშაო საათები
+- გვერდის გამოქვეყნება / დამალვა
+- ძირითადი გვერდი როგორც ავტომატური fallback
 
-```bash
-composer require laravel/boost --dev
+### Smart Schedule
+- კვირის დღეები
+- დაწყებისა და დასრულების საათები
+- თარიღის დიაპაზონი
+- პრიორიტეტი
+- სპეციალური კამპანიის override
+- ბიზნესის დროის სარტყელი (ნაგულისხმევად Asia/Tbilisi)
+- თუ წესი არ ემთხვევა, გამოჩნდება გამოქვეყნებული ძირითადი გვერდი
 
-php artisan boost:install
-```
+პრიორიტეტი:
+1. აქტიური სპეციალური კამპანია (override)
+2. დროისა და თარიღის შესაბამისი განრიგი (უფრო მაღალი priority პირველია)
+3. ძირითადი გამოქვეყნებული გვერდი
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### QR და ანალიტიკა
+- დინამიკური QR კოდები და SVG ჩამოტვირთვა
+- QR კოდის მუდმივი საჯარო URL
+- Smart Page-ის ნაგულისხმევი დანიშნულება
+- დასკანერებების რაოდენობა, მოწყობილობა და referrer
+- QR კოდის აქტივაცია / გამორთვა
 
-## Contributing
+### ბიზნესის ოპერაციები
+- პროდუქტებისა და სერვისების კატალოგი
+- კალათა და შეკვეთები
+- მარაგის კონტროლი და მოძრაობების ისტორია
+- ბიზნესის ფილიალები და გუნდი
+- გამოწერები და გადახდები
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## გაშვება ლოკალურად
 
-## Code of Conduct
+~~~bash
+composer install
+cp .env.example .env
+php artisan key:generate
+~~~
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+შექმენი MySQL მონაცემთა ბაზა და შეავსე `.env`:
 
-## Security Vulnerabilities
+~~~env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=oneqr
+DB_USERNAME=root
+DB_PASSWORD=
+~~~
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+შემდეგ:
 
-## License
+~~~bash
+php artisan migrate
+php artisan storage:link
+php artisan optimize:clear
+php artisan serve
+~~~
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+ტესტები:
+
+~~~bash
+php artisan test
+~~~
+
+## MVP-ის სამუშაო ფარგლები
+
+პირველი გაშვების მიზანია 5 სატესტო ბიზნესის ჩართვა: კაფე, სილამაზის სალონი, მაღაზია, ავტო/მოტო სერვისი და სასტუმრო.
+
+პირველი ვერსიის გარეთ რჩება ცალკე Android/iOS აპები, AI ასისტენტი, რთული CRM, ლოიალობის სისტემა და ონლაინ გადახდები მომხმარებლის შეკვეთებისთვის. ეს ფუნქციები დაემატება რეალური მომხმარებლების უკუკავშირის შემდეგ.
+
+## ბიუჯეტის პრინციპი
+
+საწყისი ხარჯების სამიზნე: **მაქსიმუმ 500₾**. გამოყენებული უნდა იყოს უფასო ჰოსტინგის/სერვისების ლიმიტები იქ, სადაც ეს საიმედოობას არ აზიანებს. დომენი, ბეჭდვა, რეკლამა და ტექნიკური რეზერვი უნდა დაიგეგმოს ცალკე. გარე სერვისის ფასიანი მოხმარება უნდა კონტროლდებოდეს.
+
+## უსაფრთხოება
+
+- ყველა ბიზნესის მართვის მოთხოვნა მოწმდება მფლობელობით ან უფლებამოსილი წევრობით.
+- Smart Page-ის რედაქტირება მხოლოდ ბიზნესის მფლობელს შეუძლია.
+- საჯაროდ ჩანს მხოლოდ გამოქვეყნებული ბიზნესის გვერდი და გამოქვეყნებული Smart Page ვერსიები.
+- ბლოკების შიგთავსი Blade-ის escaped output-ით გამოისახება.
+- QR callback-ები და გადახდები ვალიდირდება სერვერზე.
+- სენსიტიური გასაღებები ინახება `.env`-ში და არ უნდა აიტვირთოს GitHub-ზე.
