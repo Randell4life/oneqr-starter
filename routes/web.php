@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BusinessRegistrationController;
+use App\Http\Controllers\BusinessQrController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\QrRedirectController;
 use Illuminate\Support\Facades\Route;
@@ -16,10 +17,15 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', function () {
-        $businesses = auth()->user()->businesses()->latest()->get();
+        $businesses = auth()->user()->businesses()->withCount('qrCodes')->latest()->get();
 
         return view('dashboard', compact('businesses'));
     })->name('dashboard');
+
+    Route::get('/businesses/{business}/qr', [BusinessQrController::class, 'index'])->name('business.qr.index');
+    Route::post('/businesses/{business}/qr', [BusinessQrController::class, 'store'])->name('business.qr.store');
+    Route::put('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'update'])->whereNumber('qrCode')->name('business.qr.update');
+    Route::delete('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'destroy'])->whereNumber('qrCode')->name('business.qr.destroy');
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
