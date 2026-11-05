@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Business;
+use App\Models\QrCode;
+use App\Support\BusinessAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -10,36 +12,49 @@ use Illuminate\View\View;
 
 class BusinessQrController extends Controller
 {
-    public function index(Request $request, Business $business): View
+    public function index(Request $request, Business $business, BusinessAccess $access): View
     {
-        $this->authorizeBusiness($request, $business);
+        $access->assertCanViewQr($request->user(), $business);
 
         return view('qr.index', [
             'business' => $business,
-            'qrCodes' => $business->qrCodes()->latest()->paginate(12),
+            'qrCodes' => $access->visibleQrCodes($request->user(), $business)->with('branch')->latest()->paginate(12),
+            'branches' => $business->branches()->where('is_active', true)->orderBy('name')->get(),
+            'canManageQr' => $access->canManageQr($request->user(), $business),
+            'membership' => $access->membership($request->user(), $business),
         ]);
     }
 
-    public function store(Request $request, Business $business): RedirectResponse
+    public function store(Request $request, Business $business, BusinessAccess $access): RedirectResponse
     {
-        $this->authorizeBusiness($request, $business);
+        $access->assertCanManageQr($request->user(), $business);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'destination_url' => ['required', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
             'category' => ['required', Rule::in(['general', 'menu', 'product', 'contact', 'booking', 'review', 'campaign'])],
+            'branch_id' => ['nullable', 'integer', Rule::exists('business_branches', 'id')->where('business_id', $business->id)],
         ]);
 
-        $business->qrCodes()->create($data);
+        $membership = $access->membership($request->user(), $business);
+        $branchId = $membership ? $membership->branch_id : ($data['branch_id'] ?? null);
+
+        $business->qrCodes()->create([
+            'name' => $data['name'],
+            'destination_url' => $data['destination_url'],
+            'category' => $data['category'],
+            'branch_id' => $branchId,
+        ]);
 
         return redirect()->route('business.qr.index', $business)->with('status', 'QR კოდი წარმატებით შეიქმნა.');
     }
 
-    public function update(Request $request, Business $business, int $qrCode): RedirectResponse
+    public function update(Request $request, Business $business, int $qrCode, BusinessAccess $access): RedirectResponse
     {
-        $this->authorizeBusiness($request, $business);
+        $access->assertCanManageQr($request->user(), $business);
+        $record = $access->visibleQrCodes($request->user(), $business)->findOrFail($qrCode);
+        $access->assertCanAccessQr($request->user(), $business, $record);
 
-        $record = $business->qrCodes()->findOrFail($qrCode);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'destination_url' => ['required', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
@@ -52,16 +67,13 @@ class BusinessQrController extends Controller
         return back()->with('status', 'QR კოდი განახლდა.');
     }
 
-    public function destroy(Request $request, Business $business, int $qrCode): RedirectResponse
+    public function destroy(Request $request, Business $business, int $qrCode, BusinessAccess $access): RedirectResponse
     {
-        $this->authorizeBusiness($request, $business);
-        $business->qrCodes()->findOrFail($qrCode)->delete();
+        $access->assertCanManageQr($request->user(), $business);
+        $record = $access->visibleQrCodes($request->user(), $business)->findOrFail($qrCode);
+        $access->assertCanAccessQr($request->user(), $business, $record);
+        $record->delete();
 
         return back()->with('status', 'QR კოდი წაიშალა.');
-    }
-
-    private function authorizeBusiness(Request $request, Business $business): void
-    {
-        abort_unless($business->owner_id === $request->user()->id, 403);
     }
 }
