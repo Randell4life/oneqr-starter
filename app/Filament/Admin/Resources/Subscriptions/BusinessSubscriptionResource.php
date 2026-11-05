@@ -28,6 +28,11 @@ class BusinessSubscriptionResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getSlug(): string
+    {
+        return 'subscriptions';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
