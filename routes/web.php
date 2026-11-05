@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('payments.tbc.return');
     Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->name('business.subscription.checkout');
     Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->name('payments.tbc.return');
-    Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
+    Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');\n    Route::get('/businesses/{business}/profile', [BusinessProfileController::class, 'edit'])->name('business.profile.edit');\n    Route::put('/businesses/{business}/profile', [BusinessProfileController::class, 'update'])->name('business.profile.update');
     Route::post('/businesses/{business}/branches', [BusinessManagementController::class, 'storeBranch'])->name('business.branches.store');
     Route::delete('/businesses/{business}/branches/{branch}', [BusinessManagementController::class, 'destroyBranch'])->whereNumber('branch')->name('business.branches.destroy');
     Route::post('/businesses/{business}/members', [BusinessManagementController::class, 'inviteMember'])->name('business.members.invite');
@@ -59,4 +59,4 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 
-Route::get('/q/{publicId}', QrRedirectController::class)->whereUuid('publicId')->name('qr.redirect');
+Route::get('/b/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public');\nRoute::get('/q/{publicId}', QrRedirectController::class)->whereUuid('publicId')->name('qr.redirect');
