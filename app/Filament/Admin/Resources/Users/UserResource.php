@@ -20,7 +20,7 @@ class UserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'მომხმარებლები';
 
-    protected static ?string $navigationGroup = 'პლატფორმის მართვა';
+    protected static string|\UnitEnum|null $navigationGroup = 'პლატფორმის მართვა';
 
     protected static ?int $navigationSort = 2;
 
