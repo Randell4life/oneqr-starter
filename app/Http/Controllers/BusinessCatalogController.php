@@ -127,9 +127,20 @@ class BusinessCatalogController extends Controller
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
-        $trackInventory = $data['type'] === 'product' && $request->boolean('track_inventory');
+        $existing = $item ? $business->catalogItems()->findOrFail($item) : null;
+        if ($existing?->track_inventory && $data['type'] !== 'product') {
+            throw \\Illuminate\\Validation\\ValidationException::withMessages([
+                'type' => 'მარაგის აღრიცხვაში მყოფი პროდუქტის სერვისად გადაკეთება შეუძლებელია.',
+            ]);
+        }
+
+        $trackInventory = $existing?->track_inventory
+            ? true
+            : ($data['type'] === 'product' && $request->boolean('track_inventory'));
         $data['track_inventory'] = $trackInventory;
-        $data['stock_quantity'] = $trackInventory ? (int) $request->input('stock_quantity', 0) : null;
+        $data['stock_quantity'] = $existing?->track_inventory
+            ? (int) $existing->stock_quantity
+            : ($trackInventory ? (int) $request->input('stock_quantity', 0) : null);
         $data['low_stock_threshold'] = (int) $request->input('low_stock_threshold', 5);
         $data['sku'] = filled($data['sku'] ?? null) ? trim($data['sku']) : null;
         $data['is_available'] = $request->boolean('is_available');
