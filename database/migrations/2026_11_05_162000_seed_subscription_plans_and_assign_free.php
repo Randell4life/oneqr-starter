@@ -91,7 +91,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::table('business_subscriptions')->delete();
-        DB::table('subscription_plans')->delete();
+        // Keep subscription history and plan definitions intact on rollback.
     }
 };
