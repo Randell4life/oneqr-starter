@@ -96,6 +96,11 @@ class BusinessSubscriptionPaymentController extends Controller
         }
 
         $this->verifyAndActivate($payment, $tbc);
+        $payment->refresh();
+
+        if (! in_array($payment->status, ['paid', 'failed', 'expired', 'review'], true)) {
+            return response('TBC payment verification temporarily unavailable', 503);
+        }
 
         return response('OK', 200);
     }
@@ -155,8 +160,21 @@ class BusinessSubscriptionPaymentController extends Controller
         $amount = number_format((float) $providerAmount, 2, '.', '');
         $expectedAmount = number_format((float) $payment->amount, 2, '.', '');
 
-        if ($amount !== $expectedAmount || (is_array($details['amount'] ?? null) ? ($details['amount']['currency'] ?? null) : ($details['currency'] ?? null)) !== $payment->currency) {
-            report(new RuntimeException('TBC payment amount or currency mismatch for payment '.$payment->id));
+        $currency = is_array($details['amount'] ?? null)
+            ? ($details['amount']['currency'] ?? null)
+            : ($details['currency'] ?? null);
+        $merchantPaymentId = $details['merchantPaymentId'] ?? $payment->merchant_payment_id;
+
+        if (
+            $amount !== $expectedAmount
+            || $currency !== $payment->currency
+            || $merchantPaymentId !== $payment->merchant_payment_id
+        ) {
+            report(new RuntimeException('TBC payment amount, currency or merchant reference mismatch for payment '.$payment->id));
+            $payment->update([
+                'status' => 'review',
+                'failure_reason' => 'Provider payment details did not match the expected order.',
+            ]);
             return;
         }
 
