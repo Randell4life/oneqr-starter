@@ -40,8 +40,28 @@ class QrAnalyticsController extends Controller
             return ['date' => $date, 'label' => Carbon::parse($date)->format('d.m'), 'scans' => (int) ($daily[$date] ?? 0)];
         });
 
+        $visibleQrIds = $access->visibleQrCodes($request->user(), $business)->pluck('qr_codes.id');
+
+        $devices = \App\Models\QrScanEvent::query()
+            ->whereIn('qr_code_id', $visibleQrIds)
+            ->where('scanned_at', '>=', $from)
+            ->selectRaw("COALESCE(device_type, 'unknown') as device, COUNT(*) as scans")
+            ->groupBy('device')
+            ->orderByDesc('scans')
+            ->get();
+
+        $referrers = \App\Models\QrScanEvent::query()
+            ->whereIn('qr_code_id', $visibleQrIds)
+            ->where('scanned_at', '>=', $from)
+            ->selectRaw("COALESCE(referrer_host, 'პირდაპირი / უცნობი') as source, COUNT(*) as scans")
+            ->groupBy('source')
+            ->orderByDesc('scans')
+            ->limit(8)
+            ->get();
+
+        $recentTotal = (int) $days->sum('scans');
         $totalScans = (int) $access->visibleQrCodes($request->user(), $business)->sum('scan_count');
 
-        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans'));
+        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers'));
     }
 }

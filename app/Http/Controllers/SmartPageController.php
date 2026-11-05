@@ -8,6 +8,7 @@ use App\Services\SmartPageResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -84,37 +85,65 @@ class SmartPageController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'is_published' => ['nullable', 'boolean'],
             'blocks' => ['required', 'array', 'min:1', 'max:30'],
+            'blocks.*.id' => ['nullable', 'integer', Rule::exists('smart_page_blocks', 'id')->where('smart_page_id', $page->id)],
             'blocks.*.type' => ['required', Rule::in(['heading', 'text', 'image', 'button', 'contact', 'catalog', 'hours'])],
             'blocks.*.title' => ['nullable', 'string', 'max:180'],
             'blocks.*.text' => ['nullable', 'string', 'max:5000'],
             'blocks.*.url' => ['nullable', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
             'blocks.*.is_visible' => ['nullable', 'boolean'],
+            'blocks.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         if ($page->is_default && ! $request->boolean('is_published')) {
             throw ValidationException::withMessages(['is_published' => 'ძირითადი გვერდი ყოველთვის გამოქვეყნებული უნდა დარჩეს, რათა QR კოდმა fallback გვერდი აჩვენოს.']);
         }
 
+        $existingBlocks = $page->blocks()->get()->keyBy('id');
+        $oldImagePaths = $existingBlocks->pluck('content')->filter()->pluck('image')->filter()->all();
+
         foreach ($data['blocks'] as $index => $block) {
-            if (in_array($block['type'], ['button', 'image'], true) && empty($block['url'])) {
-                throw ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისა და სურათის ბლოკისთვის URL აუცილებელია.']);
+            $hasUpload = $request->hasFile("blocks.{$index}.image");
+            $existingImage = isset($block['id']) ? ($existingBlocks->get($block['id'])?->content['image'] ?? null) : null;
+            $hasExistingImage = ! empty($existingImage);
+            if ($block['type'] === 'button' && empty($block['url'])) {
+                throw ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისთვის URL აუცილებელია.']);
+            }
+            if ($block['type'] === 'image' && empty($block['url']) && ! $hasUpload && ! $hasExistingImage) {
+                throw ValidationException::withMessages(["blocks.{$index}.image" => 'ატვირთე სურათი ან მიუთითე სურათის URL.']);
             }
         }
 
-        DB::transaction(function () use ($page, $data): void {
+        DB::transaction(function () use ($request, $page, $data, $existingBlocks): void {
             $page->update(['name' => $data['name'], 'is_published' => (bool) ($data['is_published'] ?? false)]);
             $page->blocks()->delete();
 
             foreach (array_values($data['blocks']) as $position => $block) {
+                $content = array_filter([
+                    'text' => $block['text'] ?? null,
+                    'url' => $block['url'] ?? null,
+                ], fn ($value) => $value !== null && $value !== '');
+
+                $oldImage = isset($block['id']) ? ($existingBlocks->get($block['id'])?->content['image'] ?? null) : null;
+                if ($request->hasFile("blocks.{$position}.image")) {
+                    $content['image'] = $request->file("blocks.{$position}.image")->store('smart-pages/'.$page->id, 'public');
+                } elseif ($oldImage) {
+                    $content['image'] = $oldImage;
+                }
+
                 $page->blocks()->create([
                     'type' => $block['type'],
                     'title' => $block['title'] ?? null,
-                    'content' => array_filter(['text' => $block['text'] ?? null, 'url' => $block['url'] ?? null], fn ($value) => $value !== null && $value !== ''),
+                    'content' => $content,
                     'is_visible' => (bool) ($block['is_visible'] ?? false),
                     'sort_order' => $position,
                 ]);
             }
         });
+
+        $keptImagePaths = $page->blocks()->get()->pluck('content')->filter()->pluck('image')->filter()->all();
+        foreach (array_diff($oldImagePaths, $keptImagePaths) as $path) {
+            Storage::disk('public')->delete($path);
+        }
 
         return back()->with('status', 'Smart Page განახლდა.');
     }
