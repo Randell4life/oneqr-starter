@@ -19,6 +19,7 @@ return new class extends Migration
 
         Schema::table('business_orders', function (Blueprint $table) {
             $table->timestamp('stock_deducted_at')->nullable()->after('payment_status');
+            $table->timestamp('stock_restored_at')->nullable()->after('stock_deducted_at');
         });
 
         Schema::create('business_inventory_movements', function (Blueprint $table) {
@@ -44,7 +45,7 @@ return new class extends Migration
         Schema::dropIfExists('business_inventory_movements');
 
         Schema::table('business_orders', function (Blueprint $table) {
-            $table->dropColumn('stock_deducted_at');
+            $table->dropColumn(['stock_deducted_at', 'stock_restored_at']);
         });
 
         Schema::table('business_catalog_items', function (Blueprint $table) {
