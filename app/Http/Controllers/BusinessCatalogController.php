@@ -129,7 +129,7 @@ class BusinessCatalogController extends Controller
 
         $existing = $item ? $business->catalogItems()->findOrFail($item) : null;
         if ($existing?->track_inventory && $data['type'] !== 'product') {
-            throw \\Illuminate\\Validation\\ValidationException::withMessages([
+            throw \Illuminate\Validation\ValidationException::withMessages([
                 'type' => 'მარაგის აღრიცხვაში მყოფი პროდუქტის სერვისად გადაკეთება შეუძლებელია.',
             ]);
         }
