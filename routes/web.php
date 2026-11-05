@@ -3,6 +3,7 @@
 use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\BusinessCatalogController;
+use App\Http\Controllers\BusinessCartController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
 use App\Http\Controllers\BusinessSubscriptionController;
@@ -42,6 +43,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->middleware('throttle:5,1')->name('business.subscription.checkout');
     Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('payments.tbc.return');
     Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
+    Route::get('/businesses/{business}/orders', [BusinessCartController::class, 'orders'])->name('business.orders.index');
+    Route::patch('/businesses/{business}/orders/{order}/status', [BusinessCartController::class, 'updateStatus'])->whereNumber('order')->name('business.orders.update-status');
     Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');
     Route::post('/businesses/{business}/catalog', [BusinessCatalogController::class, 'store'])->name('business.catalog.store');
     Route::put('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'update'])->whereNumber('item')->name('business.catalog.update');
@@ -66,6 +69,11 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 
+Route::get('/b/{slug}/cart', [BusinessCartController::class, 'show'])->name('business.cart.show');
+Route::post('/b/{slug}/cart/{item}', [BusinessCartController::class, 'add'])->whereNumber('item')->middleware('throttle:30,1')->name('business.cart.add');
+Route::patch('/b/{slug}/cart/{item}', [BusinessCartController::class, 'update'])->whereNumber('item')->name('business.cart.update');
+Route::delete('/b/{slug}/cart/{item}', [BusinessCartController::class, 'remove'])->whereNumber('item')->name('business.cart.remove');
+Route::post('/b/{slug}/checkout', [BusinessCartController::class, 'checkout'])->middleware('throttle:10,1')->name('business.cart.checkout');
 Route::post('/b/{slug}/catalog/{item}/order', [BusinessCatalogController::class, 'submitOrder'])->whereNumber('item')->middleware('throttle:10,1')->name('business.catalog.order');
 Route::get('/b/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public');
 Route::get('/q/{publicId}', QrRedirectController::class)->whereUuid('publicId')->name('qr.redirect');

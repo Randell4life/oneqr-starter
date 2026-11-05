@@ -58,6 +58,11 @@ class Business extends Model
         return $this->hasMany(BusinessCatalogItem::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(BusinessOrder::class);
+    }
+
     public function orderRequests(): HasMany
     {
         return $this->hasMany(BusinessOrderRequest::class);
