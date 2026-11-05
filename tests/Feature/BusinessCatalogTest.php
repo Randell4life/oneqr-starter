@@ -115,6 +115,35 @@ class BusinessCatalogTest extends TestCase
         $this->assertDatabaseCount('business_catalog_items', 0);
     }
 
+
+    public function test_free_plan_blocks_eleventh_catalog_item(): void
+    {
+        $owner = User::factory()->create();
+        $business = $this->publishedBusiness($owner);
+
+        for ($i = 1; $i <= 10; $i++) {
+            $business->catalogItems()->create([
+                'type' => 'product',
+                'name' => 'Product '.$i,
+                'slug' => 'product-'.$i,
+                'currency' => 'GEL',
+                'is_available' => true,
+            ]);
+        }
+
+        $this->actingAs($owner)->post(route('business.catalog.store', $business), [
+            'type' => 'product',
+            'name' => 'Eleventh Product',
+            'currency' => 'GEL',
+            'is_available' => '1',
+        ])->assertSessionHasErrors('plan');
+
+        $this->assertDatabaseMissing('business_catalog_items', [
+            'business_id' => $business->id,
+            'name' => 'Eleventh Product',
+        ]);
+    }
+
     public function test_owner_can_create_catalog_item_and_view_orders(): void
     {
         $owner = User::factory()->create();
