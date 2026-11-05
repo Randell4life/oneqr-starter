@@ -9,7 +9,8 @@
 main{width:min(100%,520px);background:#100e1b;border:1px solid var(--line);border-radius:24px;padding:36px;box-shadow:0 24px 90px #0008}
 .logo{font-size:24px;font-weight:900;letter-spacing:-1px}.logo span{color:var(--purple)}h1{font-size:30px;margin:28px 0 8px}p{color:var(--muted);line-height:1.6;margin-top:0}
 label{display:block;font-size:13px;color:#d8d2e8;margin:17px 0 7px}input,select{width:100%;background:#090813;border:1px solid var(--line);border-radius:11px;padding:13px;color:white;font:inherit}input:focus,select:focus{outline:2px solid #865dff;border-color:transparent}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.error{color:#ff9bba;font-size:12px;margin-top:5px}button{width:100%;margin-top:24px;border:0;border-radius:12px;padding:15px;background:linear-gradient(100deg,var(--purple2),var(--purple));color:white;font-weight:800;font-size:15px;cursor:pointer}.foot{text-align:center;margin:20px 0 0;font-size:13px}.foot a{color:#c0aaff}@media(max-width:520px){main{padding:25px}.grid{grid-template-columns:1fr}}
-</style></head><body><main>
+</style>@include('partials.design-system')
+</head><body><main>
 <div class="logo">one<span>QR</span></div><h1>შექმენი შენი ბიზნესის სივრცე</h1><p>ერთი ანგარიში — შენი ბიზნესის ციფრული პლატფორმა.</p>
 <form method="POST" action="{{ route('register.store') }}">@csrf
 <label>თქვენი სახელი</label><input name="name" value="{{ old('name') }}" required autocomplete="name">@error('name')<div class="error">{{ $message }}</div>@enderror

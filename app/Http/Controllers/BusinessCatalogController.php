@@ -33,7 +33,7 @@ class BusinessCatalogController extends Controller
         $access->assertCanManageQr($request->user(), $business);
         $plans->assertCanCreate($business, 'catalog_items');
 
-        $data = $this->validated($request);
+        $data = $this->validated($request, $business);
         $data['slug'] = $this->uniqueSlug($business, $data['name']);
         $data['image_path'] = $request->file('image')?->store('business-catalog', 'public');
         unset($data['image']);
@@ -47,7 +47,7 @@ class BusinessCatalogController extends Controller
     {
         $access->assertCanManageQr($request->user(), $business);
         $record = $business->catalogItems()->findOrFail($item);
-        $data = $this->validated($request);
+        $data = $this->validated($request, $business, $item);
 
         if ($request->hasFile('image')) {
             if ($record->image_path) {
@@ -110,21 +110,46 @@ class BusinessCatalogController extends Controller
         return back()->with('status', 'შეკვეთის მოთხოვნის სტატუსი განახლდა.');
     }
 
-    private function validated(Request $request): array
+    private function validated(Request $request, Business $business, ?int $item = null): array
     {
-        return $request->validate([
+        $existing = $item ? $business->catalogItems()->findOrFail($item) : null;
+        $data = $request->validate([
             'type' => ['required', Rule::in(['product', 'service'])],
             'name' => ['required', 'string', 'max:160'],
+            'sku' => ['nullable', 'string', 'max:80', Rule::unique('business_catalog_items', 'sku')->where('business_id', $business->id)->ignore($item)],
             'description' => ['nullable', 'string', 'max:4000'],
             'price' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'currency' => ['required', Rule::in(['GEL', 'USD', 'EUR'])],
             'is_available' => ['nullable', 'boolean'],
+            'track_inventory' => ['nullable', 'boolean'],
+            'stock_quantity' => $existing?->track_inventory
+                ? ['nullable', 'integer', 'min:0', 'max:100000000']
+                : ['nullable', 'required_if:track_inventory,1', 'integer', 'min:0', 'max:100000000'],
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0', 'max:100000000'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:65535'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-        ]) + [
-            'is_available' => $request->boolean('is_available'),
-            'sort_order' => (int) $request->input('sort_order', 0),
-        ];
+        ]);
+
+        if ($existing?->track_inventory && $data['type'] !== 'product') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'type' => 'მარაგის აღრიცხვაში მყოფი პროდუქტის სერვისად გადაკეთება შეუძლებელია.',
+            ]);
+        }
+
+        $trackInventory = $existing?->track_inventory
+            ? true
+            : ($data['type'] === 'product' && $request->boolean('track_inventory'));
+        $data['track_inventory'] = $trackInventory;
+        $data['stock_quantity'] = $existing?->track_inventory
+            ? (int) $existing->stock_quantity
+            : ($trackInventory ? (int) $request->input('stock_quantity', 0) : null);
+        $data['low_stock_threshold'] = (int) $request->input('low_stock_threshold', $existing?->low_stock_threshold ?? 5);
+        $data['sku'] = filled($data['sku'] ?? null) ? trim($data['sku']) : null;
+        $data['is_available'] = $request->boolean('is_available');
+        $data['sort_order'] = (int) $request->input('sort_order', 0);
+        unset($data['image']);
+
+        return $data;
     }
 
     private function uniqueSlug(Business $business, string $name): string

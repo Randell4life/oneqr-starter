@@ -15,7 +15,8 @@ main{max-width:1120px;margin:42px auto;padding:0 22px}h1{font-size:32px;margin:0
 .plan.current{border-color:var(--purple);box-shadow:0 0 0 1px #9b72ff33}.price{font-size:26px;font-weight:800;margin:18px 0}.tag{display:inline-block;padding:5px 10px;border-radius:99px;background:#38285e;color:#e0d4ff;font-size:12px}
 li{margin:9px 0;color:#d8d2e6}.btn{display:inline-block;margin-top:14px;padding:10px 14px;border:1px solid #684bb0;border-radius:9px;background:#39265f;color:white}
 .notice{padding:14px;border:1px solid #514176;border-radius:12px;background:#17122a;color:#d9ccff;margin:18px 0}
-</style></head>
+</style>@include('partials.design-system')
+</head>
 <body>
 <header><div class="logo">one<span>QR</span></div><a href="{{ route('dashboard') }}">← კაბინეტში დაბრუნება</a></header>
 <main>

@@ -4,6 +4,7 @@ use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\BusinessCatalogController;
 use App\Http\Controllers\BusinessCartController;
+use App\Http\Controllers\BusinessInventoryController;
 use App\Http\Controllers\BusinessOrderPaymentController;
 use App\Http\Controllers\BusinessRegistrationController;
 use App\Http\Controllers\BusinessQrController;
@@ -44,6 +45,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->middleware('throttle:5,1')->name('business.subscription.checkout');
     Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('payments.tbc.return');
     Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');
+    Route::get('/businesses/{business}/inventory', [BusinessInventoryController::class, 'index'])->name('business.inventory.index');
+    Route::post('/businesses/{business}/inventory/{item}/adjust', [BusinessInventoryController::class, 'adjust'])->whereNumber('item')->middleware('throttle:30,1')->name('business.inventory.adjust');
     Route::get('/businesses/{business}/orders', [BusinessCartController::class, 'orders'])->name('business.orders.index');
     Route::patch('/businesses/{business}/orders/{order}/status', [BusinessCartController::class, 'updateStatus'])->whereNumber('order')->name('business.orders.update-status');
     Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');

@@ -6,6 +6,7 @@ use App\Models\Business;
 use App\Models\BusinessCatalogItem;
 use App\Models\BusinessOrder;
 use App\Models\BusinessOrderPayment;
+use App\Models\BusinessInventoryMovement;
 use App\Services\Payments\TbcCheckout;
 use App\Support\BusinessAccess;
 use Illuminate\Http\RedirectResponse;
@@ -57,7 +58,11 @@ class BusinessCartController extends Controller
         $data = $request->validate(['quantity' => ['nullable', 'integer', 'min:1', 'max:100']]);
         $quantity = (int) ($data['quantity'] ?? 1);
         $cart = session()->get($this->cartKey($business), []);
-        $cart[$catalogItem->id] = min(100, (int) ($cart[$catalogItem->id] ?? 0) + $quantity);
+        $newQuantity = min(100, (int) ($cart[$catalogItem->id] ?? 0) + $quantity);
+        if ($catalogItem->track_inventory && $newQuantity > (int) $catalogItem->stock_quantity) {
+            return back()->withErrors(['cart' => 'მარაგში დარჩენილია მხოლოდ '.(int) $catalogItem->stock_quantity.' ერთეული.']);
+        }
+        $cart[$catalogItem->id] = $newQuantity;
         session()->put($this->cartKey($business), $cart);
 
         return back()->with('cart_status', 'პროდუქტი კალათაში დაემატა.');
@@ -69,6 +74,10 @@ class BusinessCartController extends Controller
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1', 'max:100']]);
         $cart = session()->get($this->cartKey($business), []);
         abort_unless(array_key_exists($item, $cart), 404);
+        $catalogItem = $business->catalogItems()->where('is_available', true)->findOrFail($item);
+        if ($catalogItem->track_inventory && (int) $data['quantity'] > (int) $catalogItem->stock_quantity) {
+            return back()->withErrors(['cart' => 'მარაგში დარჩენილია მხოლოდ '.(int) $catalogItem->stock_quantity.' ერთეული.']);
+        }
         $cart[$item] = (int) $data['quantity'];
         session()->put($this->cartKey($business), $cart);
 
@@ -137,6 +146,12 @@ class BusinessCartController extends Controller
                         'cart' => $item->name.' — ფასი შეთანხმებითაა. დაუკავშირდი ბიზნესს ცალკე.',
                     ]);
                 }
+
+                if ($item->track_inventory && (int) $item->stock_quantity < (int) $cart[$item->id]) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'cart' => $item->name.' — მარაგში საკმარისი რაოდენობა აღარ არის.',
+                    ]);
+                }
             }
 
             $subtotal = round($items->sum(fn ($item) => (float) $item->price * (int) $cart[$item->id]), 2);
@@ -150,6 +165,8 @@ class BusinessCartController extends Controller
                 'payment_status' => 'unpaid',
             ]);
 
+            $stockWasDeducted = false;
+
             foreach ($items as $item) {
                 $quantity = (int) $cart[$item->id];
                 $unitPrice = round((float) $item->price, 2);
@@ -160,6 +177,28 @@ class BusinessCartController extends Controller
                     'quantity' => $quantity,
                     'line_total' => round($unitPrice * $quantity, 2),
                 ]);
+
+                if ($item->track_inventory) {
+                    $before = (int) $item->stock_quantity;
+                    $after = $before - $quantity;
+                    $item->update(['stock_quantity' => $after]);
+                    $stockWasDeducted = true;
+
+                    BusinessInventoryMovement::create([
+                        'business_id' => $business->id,
+                        'catalog_item_id' => $item->id,
+                        'business_order_id' => $order->id,
+                        'type' => 'sale',
+                        'quantity' => -$quantity,
+                        'stock_before' => $before,
+                        'stock_after' => $after,
+                        'note' => 'შეკვეთა '.$order->order_number,
+                    ]);
+                }
+            }
+
+            if ($stockWasDeducted) {
+                $order->update(['stock_deducted_at' => now()]);
             }
 
             return $order;
@@ -223,11 +262,53 @@ class BusinessCartController extends Controller
     public function updateStatus(Request $request, Business $business, int $order, BusinessAccess $access): RedirectResponse
     {
         $access->assertCanManageQr($request->user(), $business);
-        $record = $business->orders()->findOrFail($order);
         $data = $request->validate([
             'status' => ['required', Rule::in(['new', 'confirmed', 'processing', 'completed', 'cancelled'])],
         ]);
-        $record->update($data);
+
+        DB::transaction(function () use ($business, $order, $data, $request): void {
+            $record = $business->orders()->lockForUpdate()->findOrFail($order);
+
+            if ($record->status === 'cancelled' && $data['status'] !== 'cancelled') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'status' => 'გაუქმებული შეკვეთის ხელახლა გააქტიურება შეუძლებელია.',
+                ]);
+            }
+
+            if ($data['status'] === 'cancelled' && $record->stock_deducted_at && ! $record->stock_restored_at) {
+                foreach ($record->items as $line) {
+                    if (! $line->catalog_item_id) {
+                        continue;
+                    }
+
+                    $item = $business->catalogItems()->lockForUpdate()->find($line->catalog_item_id);
+                    if (! $item || ! $item->track_inventory) {
+                        continue;
+                    }
+
+                    $before = (int) $item->stock_quantity;
+                    $after = $before + (int) $line->quantity;
+                    $item->update(['stock_quantity' => $after]);
+
+                    BusinessInventoryMovement::create([
+                        'business_id' => $business->id,
+                        'catalog_item_id' => $item->id,
+                        'business_order_id' => $record->id,
+                        'user_id' => $request->user()->id,
+                        'type' => 'return',
+                        'quantity' => (int) $line->quantity,
+                        'stock_before' => $before,
+                        'stock_after' => $after,
+                        'note' => 'შეკვეთის გაუქმება '.$record->order_number,
+                    ]);
+                }
+
+                $record->stock_restored_at = now();
+            }
+
+            $record->status = $data['status'];
+            $record->save();
+        });
 
         return back()->with('status', 'შეკვეთის სტატუსი განახლდა.');
     }
