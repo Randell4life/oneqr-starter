@@ -9,6 +9,20 @@
 <div class="muted">@if($business->city || $business->address)📍 {{ $business->city }} {{ $business->address }}<br>@endif</div>
 <div class="actions">@if($business->phone)<a class="action" href="tel:{{ preg_replace('/[^0-9+]/','',$business->phone) }}">დარეკვა</a>@endif @if($business->email)<a class="action secondary" href="mailto:{{ $business->email }}">ელფოსტის გაგზავნა</a>@endif @if($business->website)<a class="action secondary" href="{{ $business->website }}" target="_blank" rel="noopener noreferrer">ვებგვერდი ↗</a>@endif</div></section>
 
+@if($smartPage)
+@foreach($smartPage->blocks->where('is_visible',true) as $block)
+<section class="card" style="border-color:color-mix(in srgb,var(--accent) 35%,var(--line))">
+@if($block->type==='heading')<h2 style="font-size:28px">{{ $block->content['text'] ?? $block->title }}</h2>
+@elseif($block->type==='text')@if($block->title)<h2>{{ $block->title }}</h2>@endif<p class="muted" style="white-space:pre-line">{{ $block->content['text'] ?? '' }}</p>
+@elseif($block->type==='image')@if(!empty($block->content['text']))<img src="{{ $block->content['text'] }}" alt="{{ $block->title ?? $business->name }}" loading="lazy" style="width:100%;max-height:420px;object-fit:cover;border-radius:16px">@endif
+@elseif($block->type==='button')@if($block->title && !empty($block->content['url']))<a class="action" href="{{ $block->content['url'] }}" target="_blank" rel="noopener noreferrer">{{ $block->title }} ↗</a>@endif
+@elseif($block->type==='contact')<h2>{{ $block->title ?: 'დაგვიკავშირდი' }}</h2><div class="actions">@if($business->phone)<a class="action" href="tel:{{ preg_replace('/[^0-9+]/','',$business->phone) }}">დარეკვა</a>@endif @if($business->email)<a class="action secondary" href="mailto:{{ $business->email }}">ელფოსტა</a>@endif</div>
+@elseif($block->type==='catalog')<h2>{{ $block->title ?: 'კატალოგი' }}</h2><a class="action" href="#catalog">პროდუქტებისა და სერვისების ნახვა ↓</a>
+@elseif($block->type==='hours')<h2>{{ $block->title ?: 'სამუშაო საათები' }}</h2><p class="muted" style="white-space:pre-line">{{ $block->content['text'] ?? '' }}</p>
+@endif
+</section>
+@endforeach
+@endif
 <section class="card" id="catalog"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>პროდუქტები და სერვისები</h2><a class="action" href="{{ route('business.cart.show',$business->slug) }}">კალათა</a></div>
 @if(session('cart_status'))<p class="muted" style="color:#a8f0d1">{{ session('cart_status') }}</p>@endif
 @if(session('order_success'))<div class="muted" style="color:#a8f0d1">შეკვეთა მიღებულია! ნომერი: <strong>{{ session('order_success.number') }}</strong> · ჯამი: {{ session('order_success.total') }}</div>@endif
