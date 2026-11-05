@@ -135,7 +135,7 @@ class SmartPageController extends Controller
         $business->smartPageSchedules()->create([
             ...$data,
             'smart_page_id' => $page->id,
-            'weekdays' => $data['weekdays'] ?? [],
+            'weekdays' => array_map('intval', $data['weekdays'] ?? []),
             'is_override' => $request->boolean('is_override'),
             'is_active' => true,
         ]);
