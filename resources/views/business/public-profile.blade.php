@@ -29,4 +29,4 @@
 </form></article>
 @empty<p class="muted">კატალოგი მალე შეივსება.</p>@endforelse
 </div></section>
-\n<footer>ეს გვერდი შექმნილია <strong>oneQR</strong>-ით · ONE SCAN. ENDLESS POSSIBILITIES.</footer></main></body></html>
+<footer>ეს გვერდი შექმნილია <strong>oneQR</strong>-ით · ONE SCAN. ENDLESS POSSIBILITIES.</footer></main></body></html>
