@@ -12,7 +12,7 @@ class TbcCheckout
 
     private function config(string $key): string
     {
-        $value = (string) config('services.tbc.'.$key, '');
+        $value = (string) config('tbc.'.$key, '');
 
         if ($value === '') {
             throw new RuntimeException('TBC E-Commerce credentials are not configured.');
