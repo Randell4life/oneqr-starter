@@ -23,6 +23,12 @@
 <h3>{{ $item->name }} <span class="muted">· {{ $item->type==='product'?'პროდუქტი':'სერვისი' }}</span></h3><p class="muted">{{ $item->is_available?'ხელმისაწვდომია':'დროებით მიუწვდომელია' }} · {{ $item->price !== null ? number_format((float)$item->price,2).' '.$item->currency : 'ფასი შეთანხმებით' }}</p><p>{{ $item->description }}</p>
 @if($canManage)<form method="POST" action="{{ route('business.catalog.update',[$business,$item->id]) }}" enctype="multipart/form-data">@csrf @method('PUT')
 <div class="grid"><div><label>სახელი</label><input name="name" value="{{ $item->name }}" required></div><div><label>SKU / არტიკული</label><input name="sku" maxlength="80" value="{{ $item->sku }}"></div><div><label>ტიპი</label><select name="type"><option value="product" @selected($item->type==='product')>პროდუქტი</option><option value="service" @selected($item->type==='service')>სერვისი</option></select></div><div><label>ფასი</label><input name="price" type="number" min="0" step="0.01" value="{{ $item->price }}"></div><div><label>ვალუტა</label><select name="currency">@foreach(['GEL','USD','EUR'] as $currency)<option @selected($item->currency===$currency)>{{ $currency }}</option>@endforeach</select></div></div>
+@if($item->track_inventory)
+<input type="hidden" name="track_inventory" value="1"><p class="muted">მარაგის კონტროლი ჩართულია · ნაშთი {{ number_format((int)$item->stock_quantity) }}. რაოდენობა შეცვალე <a href="{{ route('business.inventory.index',$business) }}">საწყობის გვერდიდან</a>.</p>
+@else
+<label><input style="width:auto" type="checkbox" name="track_inventory" value="1"> მარაგის კონტროლის ჩართვა</label><label>საწყისი მარაგი</label><input type="number" name="stock_quantity" min="0" value="0">
+@endif
+<label>დაბალი მარაგის ზღვარი</label><input type="number" name="low_stock_threshold" min="0" value="{{ $item->low_stock_threshold ?? 5 }}">
 <label>აღწერა</label><textarea name="description">{{ $item->description }}</textarea><label>ფოტოს შეცვლა</label><input type="file" name="image" accept="image/jpeg,image/png,image/webp"><label><input style="width:auto" type="checkbox" name="is_available" value="1" @checked($item->is_available)> ხელმისაწვდომია</label><button type="submit">განახლება</button></form>
 <form method="POST" action="{{ route('business.catalog.destroy',[$business,$item->id]) }}" onsubmit="return confirm('წავშალოთ ჩანაწერი?')">@csrf @method('DELETE')<button type="submit" style="background:#54263b">წაშლა</button></form>@endif
 </article>@empty<p class="muted">კატალოგი ჯერ ცარიელია.</p>@endforelse
