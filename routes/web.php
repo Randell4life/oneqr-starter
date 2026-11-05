@@ -1,13 +1,13 @@
 <?php
 
-use App\\Http\\Controllers\\BusinessManagementController;
-use App\\Http\\Controllers\\BusinessRegistrationController;
-use App\\Http\\Controllers\\BusinessQrController;
-use App\\Http\\Controllers\\QrAnalyticsController;
-use App\\Http\\Controllers\\SessionController;
-use App\\Http\\Controllers\\QrImageController;
-use App\\Http\\Controllers\\QrRedirectController;
-use Illuminate\\Support\\Facades\\Route;
+use App\Http\Controllers\BusinessManagementController;
+use App\Http\Controllers\BusinessRegistrationController;
+use App\Http\Controllers\BusinessQrController;
+use App\Http\Controllers\QrAnalyticsController;
+use App\Http\Controllers\SessionController;
+use App\Http\Controllers\QrImageController;
+use App\Http\Controllers\QrRedirectController;
+use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
