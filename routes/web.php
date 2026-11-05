@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BusinessManagementController;
 use App\Http\Controllers\BusinessProfileController;
+use App\Http\Controllers\SmartPageController;
 use App\Http\Controllers\BusinessCatalogController;
 use App\Http\Controllers\BusinessCartController;
 use App\Http\Controllers\BusinessInventoryController;
