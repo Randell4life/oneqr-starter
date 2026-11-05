@@ -44,4 +44,9 @@ class Business extends Model
     {
         return $this->hasMany(BusinessMembership::class);
     }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(BusinessSubscription::class);
+    }
 }
