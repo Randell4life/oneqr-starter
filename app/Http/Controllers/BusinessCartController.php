@@ -1,0 +1,157 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Business;
+use App\Models\BusinessCatalogItem;
+use App\Models\BusinessOrder;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+
+class BusinessCartController extends Controller
+{
+    public function show(string $slug): View
+    {
+        $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $cart = session()->get($this->cartKey($business), []);
+        $items = $business->catalogItems()
+            ->where('is_available', true)
+            ->whereIn('id', array_keys($cart))
+            ->get()
+            ->keyBy('id');
+
+        $lines = collect($cart)->map(function ($quantity, $id) use ($items) {
+            $item = $items->get($id);
+
+            return $item ? ['item' => $item, 'quantity' => (int) $quantity, 'line_total' => round((float) $item->price * (int) $quantity, 2)] : null;
+        })->filter()->values();
+
+        return view('business.cart', [
+            'business' => $business,
+            'lines' => $lines,
+            'subtotal' => round($lines->sum('line_total'), 2),
+            'currency' => $lines->first()['item']->currency ?? 'GEL',
+        ]);
+    }
+
+    public function add(Request $request, string $slug, int $item): RedirectResponse
+    {
+        $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $catalogItem = $business->catalogItems()->where('is_available', true)->findOrFail($item);
+        $data = $request->validate(['quantity' => ['nullable', 'integer', 'min:1', 'max:100']]);
+        $quantity = (int) ($data['quantity'] ?? 1);
+        $cart = session()->get($this->cartKey($business), []);
+        $cart[$catalogItem->id] = min(100, (int) ($cart[$catalogItem->id] ?? 0) + $quantity);
+        session()->put($this->cartKey($business), $cart);
+
+        return back()->with('cart_status', 'პროდუქტი კალათაში დაემატა.');
+    }
+
+    public function update(Request $request, string $slug, int $item): RedirectResponse
+    {
+        $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1', 'max:100']]);
+        $cart = session()->get($this->cartKey($business), []);
+        abort_unless(array_key_exists($item, $cart), 404);
+        $cart[$item] = (int) $data['quantity'];
+        session()->put($this->cartKey($business), $cart);
+
+        return back()->with('cart_status', 'კალათა განახლდა.');
+    }
+
+    public function remove(string $slug, int $item): RedirectResponse
+    {
+        $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $cart = session()->get($this->cartKey($business), []);
+        unset($cart[$item]);
+        session()->put($this->cartKey($business), $cart);
+
+        return back()->with('cart_status', 'პროდუქტი კალათიდან წაიშალა.');
+    }
+
+    public function checkout(Request $request, string $slug): RedirectResponse
+    {
+        $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $data = $request->validate([
+            'customer_name' => ['required', 'string', 'max:120'],
+            'customer_phone' => ['required', 'string', 'max:40'],
+            'customer_email' => ['nullable', 'email', 'max:190'],
+            'customer_address' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:1500'],
+            'payment_method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer'])],
+        ]);
+
+        $cart = session()->get($this->cartKey($business), []);
+        if ($cart === []) {
+            return back()->withErrors(['cart' => 'კალათა ცარიელია.']);
+        }
+
+        $order = DB::transaction(function () use ($business, $cart, $data) {
+            $items = $business->catalogItems()
+                ->where('is_available', true)
+                ->whereIn('id', array_keys($cart))
+                ->lockForUpdate()
+                ->get();
+
+            if ($items->count() !== count($cart)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'cart' => 'კალათაში არის პროდუქტი, რომელიც აღარ არის ხელმისაწვდომი. განაახლე კალათა.',
+                ]);
+            }
+
+            $currencies = $items->pluck('currency')->unique();
+            if ($currencies->count() !== 1) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'cart' => 'ერთ შეკვეთაში სხვადასხვა ვალუტის პროდუქტების გაერთიანება შეუძლებელია.',
+                ]);
+            }
+
+            foreach ($items as $item) {
+                if ($item->price === null) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'cart' => $item->name.' — ფასი შეთანხმებითაა. დაუკავშირდი ბიზნესს ცალკე.',
+                    ]);
+                }
+            }
+
+            $subtotal = round($items->sum(fn ($item) => (float) $item->price * (int) $cart[$item->id]), 2);
+            $order = BusinessOrder::create($data + [
+                'business_id' => $business->id,
+                'order_number' => 'OQR-'.now()->format('ymd').'-'.Str::upper(Str::random(6)),
+                'subtotal' => $subtotal,
+                'total' => $subtotal,
+                'currency' => $currencies->first(),
+                'status' => 'new',
+                'payment_status' => 'unpaid',
+            ]);
+
+            foreach ($items as $item) {
+                $quantity = (int) $cart[$item->id];
+                $unitPrice = round((float) $item->price, 2);
+                $order->items()->create([
+                    'catalog_item_id' => $item->id,
+                    'item_name' => $item->name,
+                    'unit_price' => $unitPrice,
+                    'quantity' => $quantity,
+                    'line_total' => round($unitPrice * $quantity, 2),
+                ]);
+            }
+
+            return $order;
+        });
+
+        session()->forget($this->cartKey($business));
+
+        return redirect()->route('business.public', $business->slug)
+            ->with('order_success', ['number' => $order->order_number, 'total' => number_format((float) $order->total, 2).' '.$order->currency]);
+    }
+
+    private function cartKey(Business $business): string
+    {
+        return 'oneqr_cart_'.$business->id;
+    }
+}
