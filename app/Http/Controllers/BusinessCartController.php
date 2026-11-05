@@ -97,6 +97,10 @@ class BusinessCartController extends Controller
             'payment_method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer', 'tbc_card'])],
         ]);
 
+        if ($data['payment_method'] === 'tbc_card' && (! config('tbc.enabled') || ! config('tbc.api_key'))) {
+            return back()->withInput()->withErrors(['payment_method' => 'ბარათით გადახდა ამჟამად მიუწვდომელია.']);
+        }
+
         $cart = session()->get($this->cartKey($business), []);
         if ($cart === []) {
             return back()->withErrors(['cart' => 'კალათა ცარიელია.']);
@@ -157,6 +161,44 @@ class BusinessCartController extends Controller
         });
 
         session()->forget($this->cartKey($business));
+
+        if ($order->payment_method === 'tbc_card') {
+            $payment = BusinessOrderPayment::create([
+                'uuid' => (string) Str::uuid(),
+                'business_order_id' => $order->id,
+                'provider' => 'tbc',
+                'status' => 'pending',
+                'amount' => $order->total,
+                'currency' => $order->currency,
+                'merchant_payment_id' => 'OQRORD'.Str::upper(Str::random(20)),
+                'expires_at' => now()->addMinutes(12),
+            ]);
+
+            try {
+                $checkout = $tbc->createPayment(
+                    $payment->merchant_payment_id,
+                    (float) $payment->amount,
+                    route('business.orders.payment.return', $payment->uuid, true),
+                    route('payments.tbc.callback', [], true),
+                    $request->ip(),
+                    'oneQR order '.$order->order_number
+                );
+                $payment->update([
+                    'provider_payment_id' => $checkout['pay_id'],
+                    'checkout_url' => $checkout['checkout_url'],
+                    'status' => 'initiated',
+                ]);
+            } catch (\\RuntimeException $exception) {
+                report($exception);
+                $payment->update(['status' => 'failed', 'failure_reason' => 'TBC payment initialization failed.']);
+                $order->update(['payment_status' => 'failed']);
+
+                return redirect()->route('business.public', $business->slug)
+                    ->with('payment_error', 'ბანკთან დაკავშირება ვერ მოხერხდა. შეკვეთა შენარჩუნებულია, სცადე მოგვიანებით ან დაუკავშირდი ბიზნესს.');
+            }
+
+            return redirect()->away($payment->checkout_url);
+        }
 
         return redirect()->route('business.public', $business->slug)
             ->with('order_success', ['number' => $order->order_number, 'total' => number_format((float) $order->total, 2).' '.$order->currency]);
