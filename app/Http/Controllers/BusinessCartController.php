@@ -188,7 +188,7 @@ class BusinessCartController extends Controller
                     'checkout_url' => $checkout['checkout_url'],
                     'status' => 'initiated',
                 ]);
-            } catch (\\RuntimeException $exception) {
+            } catch (\RuntimeException $exception) {
                 report($exception);
                 $payment->update(['status' => 'failed', 'failure_reason' => 'TBC payment initialization failed.']);
                 $order->update(['payment_status' => 'failed']);
