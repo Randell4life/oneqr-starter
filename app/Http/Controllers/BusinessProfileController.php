@@ -63,6 +63,7 @@ class BusinessProfileController extends Controller
         $business = Business::query()
             ->where('slug', $slug)
             ->where('is_published', true)
+            ->with(['catalogItems' => fn ($query) => $query->where('is_available', true)->orderBy('sort_order')->orderBy('name')])
             ->firstOrFail();
 
         return view('business.public-profile', compact('business'));
