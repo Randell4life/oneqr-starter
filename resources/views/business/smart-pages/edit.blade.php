@@ -19,7 +19,7 @@
 <aside><section class="surface"><h2>ავტომატური განრიგი</h2><p class="muted">განრიგი ამ ვერსიას ჩართავს მითითებულ დღეებსა და საათებში. დრო ბიზნესის დროის სარტყლით განისაზღვრება: {{ $business->timezone }}.</p>
 <form method="POST" action="{{ route('business.smart-pages.schedules.store',[$business,$page]) }}">@csrf
 <label>განრიგის სახელი</label><input name="name" required maxlength="120" placeholder="მაგ. დილის შეთავაზება" style="width:100%;margin:7px 0 12px">
-<label>დღეები</label><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin:7px 0 12px">@foreach(['ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი','კვირა'] as $day=>$label)<label><input type="checkbox" name="weekdays[]" value="{{ $day }}"> {{ $label }}</label>@endforeach</div>
+<label>დღეები</label><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin:7px 0 12px">@foreach([1=>'ორშაბათი',2=>'სამშაბათი',3=>'ოთხშაბათი',4=>'ხუთშაბათი',5=>'პარასკევი',6=>'შაბათი',0=>'კვირა'] as $day=>$label)<label><input type="checkbox" name="weekdays[]" value="{{ $day }}"> {{ $label }}</label>@endforeach</div>
 <div class="two"><div><label>დაწყება</label><input type="time" name="starts_at"></div><div><label>დასრულება</label><input type="time" name="ends_at"></div><div><label>თარიღიდან</label><input type="date" name="starts_on"></div><div><label>თარიღამდე</label><input type="date" name="ends_on"></div></div>
 <label>პრიორიტეტი (1–100)</label><input type="number" name="priority" min="1" max="100" value="10" required style="width:100%;margin:7px 0 12px">
 <label><input type="checkbox" name="is_override" value="1"> სპეციალური კამპანია (უმაღლესი პრიორიტეტი)</label><button class="btn" style="width:100%;margin-top:12px">განრიგის დამატება</button></form></section>
