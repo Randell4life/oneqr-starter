@@ -8,7 +8,9 @@
 <div class="muted">@if($business->city || $business->address)📍 {{ $business->city }} {{ $business->address }}<br>@endif</div>
 <div class="actions">@if($business->phone)<a class="action" href="tel:{{ preg_replace('/[^0-9+]/','',$business->phone) }}">დარეკვა</a>@endif @if($business->email)<a class="action secondary" href="mailto:{{ $business->email }}">ელფოსტის გაგზავნა</a>@endif @if($business->website)<a class="action secondary" href="{{ $business->website }}" target="_blank" rel="noopener noreferrer">ვებგვერდი ↗</a>@endif</div></section>
 
-<section class="card" id="catalog"><h2>პროდუქტები და სერვისები</h2>
+<section class="card" id="catalog"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>პროდუქტები და სერვისები</h2><a class="action" href="{{ route('business.cart.show',$business->slug) }}">კალათა</a></div>
+@if(session('cart_status'))<p class="muted" style="color:#a8f0d1">{{ session('cart_status') }}</p>@endif
+@if(session('order_success'))<div class="muted" style="color:#a8f0d1">შეკვეთა მიღებულია! ნომერი: <strong>{{ session('order_success.number') }}</strong> · ჯამი: {{ session('order_success.total') }}</div>@endif
 @if(session('order_status'))<p class="muted" style="color:#a8f0d1">{{ session('order_status') }}</p>@endif
 @if($errors->any())<div class="muted" style="color:#ffc2d0">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
@@ -18,14 +20,10 @@
 <span class="type">{{ $item->type==='product'?'პროდუქტი':'სერვისი' }}</span><h3>{{ $item->name }}</h3>
 @if($item->description)<p class="muted">{{ $item->description }}</p>@endif
 <p style="font-weight:800">{{ $item->price !== null ? number_format((float)$item->price,2).' '.$item->currency : 'ფასი შეთანხმებით' }}</p>
-<form method="POST" action="{{ route('business.catalog.order',[$business->slug,$item->id]) }}" style="display:grid;gap:8px">
+<form method="POST" action="{{ route('business.cart.add',[$business->slug,$item->id]) }}" style="display:flex;gap:8px;align-items:center">
 @csrf
-<input name="customer_name" required maxlength="120" placeholder="თქვენი სახელი" style="padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white">
-<input name="customer_phone" required maxlength="40" placeholder="ტელეფონი" style="padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white">
-<input name="customer_email" type="email" maxlength="190" placeholder="ელფოსტა (არასავალდებულო)" style="padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white">
-<input name="quantity" type="number" min="1" max="100" value="1" required style="padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white">
-<textarea name="message" maxlength="1500" placeholder="დამატებითი ინფორმაცია" style="padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white"></textarea>
-<button class="action" type="submit" style="border:0;cursor:pointer">შეკვეთის მოთხოვნა</button>
+<input aria-label="რაოდენობა" name="quantity" type="number" min="1" max="100" value="1" required style="width:76px;padding:10px;border-radius:8px;border:1px solid var(--line);background:#090812;color:white">
+<button class="action" type="submit" style="border:0;cursor:pointer">კალათაში დამატება</button>
 </form></article>
 @empty<p class="muted">კატალოგი მალე შეივსება.</p>@endforelse
 </div></section>
