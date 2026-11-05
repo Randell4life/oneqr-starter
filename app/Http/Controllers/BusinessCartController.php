@@ -58,7 +58,11 @@ class BusinessCartController extends Controller
         $data = $request->validate(['quantity' => ['nullable', 'integer', 'min:1', 'max:100']]);
         $quantity = (int) ($data['quantity'] ?? 1);
         $cart = session()->get($this->cartKey($business), []);
-        $cart[$catalogItem->id] = min(100, (int) ($cart[$catalogItem->id] ?? 0) + $quantity);
+        $newQuantity = min(100, (int) ($cart[$catalogItem->id] ?? 0) + $quantity);
+        if ($catalogItem->track_inventory && $newQuantity > (int) $catalogItem->stock_quantity) {
+            return back()->withErrors(['cart' => 'მარაგში დარჩენილია მხოლოდ '.(int) $catalogItem->stock_quantity.' ერთეული.']);
+        }
+        $cart[$catalogItem->id] = $newQuantity;
         session()->put($this->cartKey($business), $cart);
 
         return back()->with('cart_status', 'პროდუქტი კალათაში დაემატა.');
@@ -70,6 +74,10 @@ class BusinessCartController extends Controller
         $data = $request->validate(['quantity' => ['required', 'integer', 'min:1', 'max:100']]);
         $cart = session()->get($this->cartKey($business), []);
         abort_unless(array_key_exists($item, $cart), 404);
+        $catalogItem = $business->catalogItems()->where('is_available', true)->findOrFail($item);
+        if ($catalogItem->track_inventory && (int) $data['quantity'] > (int) $catalogItem->stock_quantity) {
+            return back()->withErrors(['cart' => 'მარაგში დარჩენილია მხოლოდ '.(int) $catalogItem->stock_quantity.' ერთეული.']);
+        }
         $cart[$item] = (int) $data['quantity'];
         session()->put($this->cartKey($business), $cart);
 
