@@ -23,8 +23,11 @@ class TbcCheckout
 
     private function accessToken(): string
     {
-        return Cache::remember('oneqr:tbc:access-token', now()->addHours(23), function (): string {
-            $response = Http::asForm()
+        if (Cache::has('oneqr:tbc:access-token')) {
+            return Cache::get('oneqr:tbc:access-token');
+        }
+
+        $response = Http::asForm()
                 ->acceptJson()
                 ->withHeaders(['apikey' => $this->config('api_key')])
                 ->timeout(20)
@@ -33,12 +36,15 @@ class TbcCheckout
                     'client_secret' => $this->config('client_secret'),
                 ]);
 
-            if (! $response->successful() || ! is_string($response->json('access_token'))) {
-                throw new RuntimeException('TBC access token could not be obtained.');
-            }
+        if (! $response->successful() || ! is_string($response->json('access_token'))) {
+            throw new RuntimeException('TBC access token could not be obtained.');
+        }
 
-            return $response->json('access_token');
-        });
+        $token = $response->json('access_token');
+        $expiresIn = max(60, (int) $response->json('expires_in', 3600) - 60);
+        Cache::put('oneqr:tbc:access-token', $token, now()->addSeconds($expiresIn));
+
+        return $token;
     }
 
     private function request()
