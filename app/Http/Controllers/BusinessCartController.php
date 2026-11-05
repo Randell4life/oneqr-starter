@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Business;
 use App\Models\BusinessCatalogItem;
 use App\Models\BusinessOrder;
+use App\Support\BusinessAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
