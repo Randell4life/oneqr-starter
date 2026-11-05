@@ -24,7 +24,7 @@ class BusinessSubscriptionResource extends Resource
 
     protected static ?string $pluralModelLabel = 'გამოწერები';
 
-    protected static ?string $navigationGroup = 'ფინანსები';
+    protected static string|\UnitEnum|null $navigationGroup = 'ფინანსები';
 
     protected static ?int $navigationSort = 3;
 
