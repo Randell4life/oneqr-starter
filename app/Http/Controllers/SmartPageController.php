@@ -55,7 +55,7 @@ class SmartPageController extends Controller
                 'slug' => $slug,
                 'kind' => $data['kind'],
                 'is_default' => $data['kind'] === 'default',
-                'is_published' => false,
+                'is_published' => $data['kind'] === 'default',
             ]);
 
             $page->blocks()->createMany([
