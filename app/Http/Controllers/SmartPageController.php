@@ -91,6 +91,10 @@ class SmartPageController extends Controller
             'blocks.*.is_visible' => ['nullable', 'boolean'],
         ]);
 
+        if ($page->is_default && ! $request->boolean('is_published')) {
+            throw ValidationException::withMessages(['is_published' => 'ძირითადი გვერდი ყოველთვის გამოქვეყნებული უნდა დარჩეს, რათა QR კოდმა fallback გვერდი აჩვენოს.']);
+        }
+
         foreach ($data['blocks'] as $index => $block) {
             if (in_array($block['type'], ['button', 'image'], true) && empty($block['url'])) {
                 throw ValidationException::withMessages(["blocks.{$index}.url" => 'ღილაკისა და სურათის ბლოკისთვის URL აუცილებელია.']);
