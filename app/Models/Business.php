@@ -68,6 +68,16 @@ class Business extends Model
         return $this->hasMany(BusinessOrderRequest::class);
     }
 
+    public function smartPages(): HasMany
+    {
+        return $this->hasMany(SmartPage::class);
+    }
+
+    public function smartPageSchedules(): HasMany
+    {
+        return $this->hasMany(SmartPageSchedule::class);
+    }
+
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(BusinessInventoryMovement::class);
