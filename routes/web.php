@@ -20,9 +20,15 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', function () {
-        $businesses = auth()->user()->businesses()->withCount('qrCodes')->latest()->get();
+        $user = auth()->user();
+        $businesses = $user->businesses()->withCount('qrCodes')->latest()->get();
+        $teamMemberships = $user->memberships()
+            ->where('status', 'active')
+            ->with(['business', 'branch'])
+            ->latest()
+            ->get();
 
-        return view('dashboard', compact('businesses'));
+        return view('dashboard', compact('businesses', 'teamMemberships'));
     })->name('dashboard');
 
     Route::get('/businesses/{business}/manage', [BusinessManagementController::class, 'index'])->name('business.manage');

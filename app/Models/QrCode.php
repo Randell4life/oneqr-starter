@@ -12,7 +12,7 @@ class QrCode extends Model
     protected $table = 'qr_codes';
 
     protected $fillable = [
-        'business_id', 'name', 'public_id', 'destination_url', 'category',
+        'business_id', 'branch_id', 'name', 'public_id', 'destination_url', 'category',
         'is_active', 'scan_count', 'last_scanned_at',
     ];
 
@@ -35,6 +35,11 @@ class QrCode extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(BusinessBranch::class, 'branch_id');
     }
 
     public function scanEvents(): HasMany

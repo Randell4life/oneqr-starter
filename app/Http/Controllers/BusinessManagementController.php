@@ -60,6 +60,7 @@ class BusinessManagementController extends Controller
         $record = $business->branches()->findOrFail($branch);
 
         abort_if($record->is_primary, 422, 'ძირითადი ფილიალის წაშლა შეუძლებელია.');
+        abort_if($record->memberships()->exists(), 422, 'ფილიალზე თანამშრომლები არიან მიბმული. ჯერ გადაიყვანე ისინი სხვა ფილიალში.');
 
         $record->delete();
 
