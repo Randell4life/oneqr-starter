@@ -6,7 +6,7 @@ use App\Models\Business;
 use App\Models\BusinessMembership;
 use App\Models\QrCode;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BusinessAccess
 {
