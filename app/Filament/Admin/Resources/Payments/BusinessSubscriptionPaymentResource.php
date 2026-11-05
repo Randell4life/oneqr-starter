@@ -25,10 +25,7 @@ class BusinessSubscriptionPaymentResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    public static function getSlug(): string
-    {
-        return 'payments';
-    }
+    protected static ?string $slug = 'payments';
 
     public static function form(Schema $schema): Schema
     {
