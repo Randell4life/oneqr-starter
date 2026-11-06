@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Models\QrScanEvent;
+use App\Models\SmartPageInteraction;
 use App\Support\BusinessAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -57,8 +58,13 @@ class QrAnalyticsController extends Controller
 
         $recentTotal = (int) $days->sum('scans');
         $totalScans = (int) $access->visibleQrCodes($request->user(), $business)->sum('scan_count');
+        $interactions = SmartPageInteraction::query()->where('business_id', $business->id)
+            ->where('occurred_at', '>=', $from)
+            ->selectRaw('interaction_type, COUNT(*) as total')
+            ->groupBy('interaction_type')->orderByDesc('total')->get();
+        $interactionTotal = (int) $interactions->sum('total');
 
-        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers', 'campaigns', 'placements', 'period'));
+        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers', 'campaigns', 'placements', 'period', 'interactions', 'interactionTotal'));
     }
 
     public function export(Request $request, Business $business, BusinessAccess $access): StreamedResponse
