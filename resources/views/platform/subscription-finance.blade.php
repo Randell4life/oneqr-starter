@@ -23,7 +23,7 @@ table{width:100%;border-collapse:collapse;min-width:850px}th,td{text-align:left;
 </style>
 </head>
 <body>
-<header><div class="logo">one<span>QR</span> <span class="label">/ PLATFORM</span></div><nav class="actions"><a href="{{ route('platform.subscription-plans.index') }}">გეგმები</a><a href="{{ route('dashboard') }}">კაბინეტი ←</a></nav></header>
+<header><div class="logo">one<span>QR</span> <span class="label">/ PLATFORM</span></div><nav class="actions"><a href="{{ route('platform.subscription-plans.index') }}">გეგმები</a><a href="{{ route('platform.business-subscriptions.index') }}">ბიზნესების გამოწერები</a><a href="{{ route('dashboard') }}">კაბინეტი ←</a></nav></header>
 <main>
 <h1>გამოწერების ფინანსები</h1><p class="muted intro">გადახდების ისტორია და შემოსავლის მიმოხილვა. თანხები დათვლილია GEL-ში, გადახდის ჩანაწერების მიხედვით.</p>
 <div class="cards">
