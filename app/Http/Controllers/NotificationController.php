@@ -27,6 +27,10 @@ class NotificationController extends Controller
         $record->markAsRead();
 
         $url = $record->data['url'] ?? route('notifications.index');
+        $host = is_string($url) ? parse_url($url, PHP_URL_HOST) : null;
+        if (! is_string($url) || str_starts_with($url, '//') || ($host !== null && ! hash_equals($request->getHost(), $host))) {
+            $url = route('notifications.index');
+        }
 
         return redirect()->to($url);
     }
