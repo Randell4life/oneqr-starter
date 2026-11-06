@@ -26,7 +26,8 @@ li{margin:9px 0;color:#d8d2e6}.btn{display:inline-block;margin-top:14px;padding:
 <h1>გამოწერა და გეგმები</h1><p class="muted">{{ $business->name }} — მართე ლიმიტები და შეარჩიე ბიზნესის მასშტაბზე მორგებული პაკეტი.</p>
 <section class="panel">
 <div class="tag">მიმდინარე გეგმა</div><h2>{{ $currentPlan->name }}</h2>
-<p class="muted">სტატუსი: {{ $subscription?->status === 'active' ? 'აქტიური' : ($subscription?->status === 'trialing' ? 'საცდელი პერიოდი' : 'უფასო გეგმა') }}</p>\n@if(!$subscription && $latestSubscription && $latestSubscription->ends_at && $latestSubscription->ends_at->isPast())<div class="notice">წინა გეგმის ვადა ამოიწურა {{ $latestSubscription->ends_at->format('d.m.Y') }}-ს. ანგარიში გადავიდა Free გეგმაზე.</div>@endif
+<p class="muted">სტატუსი: {{ $subscription?->status === 'active' ? 'აქტიური' : ($subscription?->status === 'trialing' ? 'საცდელი პერიოდი' : 'უფასო გეგმა') }}</p>
+@if(!$subscription && $latestSubscription && $latestSubscription->ends_at && $latestSubscription->ends_at->isPast())<div class="notice">წინა გეგმის ვადა ამოიწურა {{ $latestSubscription->ends_at->format('d.m.Y') }}-ს. ანგარიში გადავიდა Free გეგმაზე.</div>@endif
 <div class="usage">
 @foreach(['qr_codes'=>'QR კოდები','branches'=>'ფილიალები','team_members'=>'აქტიური თანამშრომლები'] as $key=>$label)
 <div><div class="muted">{{ $label }}</div><div class="value">{{ $usage[$key] }} / {{ $currentPlan->limits[$key] ?? '∞' }}</div></div>
