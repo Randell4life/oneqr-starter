@@ -196,4 +196,24 @@ class QrManagementTest extends TestCase
             ->get(route('business.qr.index', $business))
             ->assertForbidden();
     }
+
+    public function test_owner_can_choose_analytics_period_and_export_scan_events_as_csv(): void
+    {
+        $owner = User::factory()->create();
+        $business = Business::create(['owner_id' => $owner->id, 'name' => 'CSV Analytics', 'slug' => 'csv-analytics', 'business_type' => 'retail', 'status' => 'active']);
+        $qr = BusinessQrCode::create(['business_id' => $business->id, 'name' => 'Campaign QR', 'destination_url' => 'https://example.com', 'campaign_name' => 'Autumn Sale', 'placement_label' => 'შესასვლელი']);
+        $qr->scanEvents()->create(['scanned_at' => now(), 'device_type' => 'mobile', 'referrer_host' => 'instagram.com']);
+        $qr->scanEvents()->create(['scanned_at' => now()->subDays(20), 'device_type' => 'desktop', 'referrer_host' => 'facebook.com']);
+
+        $this->actingAs($owner)->get(route('business.analytics', [$business, 'days' => 7]))
+            ->assertOk()->assertSee('არჩეული პერიოდი · 7 დღე')->assertSee('1');
+
+        $response = $this->actingAs($owner)->get(route('business.analytics.export', [$business, 'days' => 7]));
+        $response->assertOk()->assertHeader('content-type', 'text/csv; charset=UTF-8');
+        $csv = $response->streamedContent();
+        $this->assertStringContainsString('Campaign QR', $csv);
+        $this->assertStringContainsString('instagram.com', $csv);
+        $this->assertStringNotContainsString('facebook.com', $csv);
+    }
+
 }

@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function (): void {
     Route::put('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'update'])->whereNumber('qrCode')->name('business.qr.update');
     Route::delete('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'destroy'])->whereNumber('qrCode')->name('business.qr.destroy');
     Route::get('/businesses/{business}/analytics', [QrAnalyticsController::class, 'index'])->name('business.analytics');
+    Route::get('/businesses/{business}/analytics/export', [QrAnalyticsController::class, 'export'])->name('business.analytics.export');
     Route::get('/businesses/{business}/qr/{qrCode}/image.svg', [QrImageController::class, 'show'])->whereNumber('qrCode')->name('business.qr.image');
     Route::get('/businesses/{business}/qr/{qrCode}/print', [QrImageController::class, 'printCard'])->whereNumber('qrCode')->name('business.qr.print');
 
