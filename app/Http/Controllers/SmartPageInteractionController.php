@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class SmartPageInteractionController extends Controller
 {
     private const TYPES = [
-        'call', 'email', 'website', 'directions', 'cta', 'catalog', 'cart', 'order', 'social',
+        'call', 'email', 'website', 'directions', 'cta', 'catalog', 'cart', 'order', 'social', 'inquiry',
     ];
 
     public function store(Request $request, string $slug): JsonResponse
