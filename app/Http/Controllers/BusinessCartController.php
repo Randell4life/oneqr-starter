@@ -318,6 +318,25 @@ class BusinessCartController extends Controller
         return back()->with('status', 'შეკვეთის სტატუსი განახლდა.');
     }
 
+
+    public function kitchen(Request $request, Business $business, BusinessAccess $access): View
+    {
+        $access->assertCanManageQr($request->user(), $business);
+
+        $activeOrders = $business->orders()
+            ->with('items')
+            ->whereIn('status', ['new', 'confirmed', 'processing'])
+            ->oldest()
+            ->get();
+
+        return view('business.kitchen', [
+            'business' => $business,
+            'orders' => $activeOrders,
+            'newCount' => $activeOrders->where('status', 'new')->count(),
+            'preparingCount' => $activeOrders->whereIn('status', ['confirmed', 'processing'])->count(),
+        ]);
+    }
+
     private function cartKey(Business $business): string
     {
         return 'oneqr_cart_'.$business->id;
