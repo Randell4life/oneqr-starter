@@ -36,6 +36,8 @@ class BusinessQrController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'destination_url' => ['required', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
             'category' => ['required', Rule::in(['general', 'menu', 'product', 'contact', 'booking', 'review', 'campaign'])],
+            'placement_label' => ['nullable', 'string', 'max:100'],
+            'campaign_name' => ['nullable', 'string', 'max:120'],
             'branch_id' => ['nullable', 'integer', Rule::exists('business_branches', 'id')->where('business_id', $business->id)],
         ]);
 
@@ -46,6 +48,8 @@ class BusinessQrController extends Controller
             'name' => $data['name'],
             'destination_url' => $data['destination_url'],
             'category' => $data['category'],
+            'placement_label' => $data['placement_label'] ?? null,
+            'campaign_name' => $data['campaign_name'] ?? null,
             'branch_id' => $branchId,
         ]);
 
@@ -63,6 +67,8 @@ class BusinessQrController extends Controller
             'destination_url' => ['required', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
             'category' => ['required', Rule::in(['general', 'menu', 'product', 'contact', 'booking', 'review', 'campaign'])],
             'is_active' => ['required', 'boolean'],
+            'placement_label' => ['nullable', 'string', 'max:100'],
+            'campaign_name' => ['nullable', 'string', 'max:120'],
         ]);
 
         $record->update($data);
