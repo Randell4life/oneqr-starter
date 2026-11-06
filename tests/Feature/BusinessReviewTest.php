@@ -61,6 +61,32 @@ class BusinessReviewTest extends TestCase
         $this->assertDatabaseCount('business_reviews', 0);
     }
 
+    public function test_public_page_displays_only_approved_reviews_and_average_rating(): void
+    {
+        $business = $this->publishedBusiness(User::factory()->create(), 'public-review-display');
+
+        $business->reviews()->create([
+            'customer_name' => 'Approved Customer',
+            'rating' => 5,
+            'comment' => 'Excellent service',
+            'status' => 'approved',
+        ]);
+        $business->reviews()->create([
+            'customer_name' => 'Pending Customer',
+            'rating' => 1,
+            'comment' => 'Not public yet',
+            'status' => 'pending',
+        ]);
+
+        $this->get(route('business.public', $business->slug))
+            ->assertOk()
+            ->assertSee('Approved Customer')
+            ->assertSee('Excellent service')
+            ->assertDontSee('Pending Customer')
+            ->assertDontSee('Not public yet')
+            ->assertSee('5.0');
+    }
+
     public function test_business_can_approve_only_its_own_reviews(): void
     {
         $owner = User::factory()->create();
