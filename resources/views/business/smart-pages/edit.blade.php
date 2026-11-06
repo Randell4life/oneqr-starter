@@ -35,7 +35,7 @@ header.nav{position:sticky;top:0;z-index:20}
 <div id="blocks">
 @foreach($page->blocks as $i=>$block)
 <div class="block-editor" data-block><input type="hidden" name="blocks[{{ $i }}][id]" value="{{ $block->id }}"><div class="section-heading"><strong>ბლოკი #{{ $i+1 }}</strong><button type="button" class="btn btn-small" onclick="moveBlock(this,-1)">↑</button> <button type="button" class="btn btn-small" onclick="moveBlock(this,1)">↓</button> <button type="button" class="btn btn-small" onclick="this.closest('[data-block]').remove();renumber();updatePreview()">წაშლა</button></div>
-<div class="two"><div><label>ტიპი</label><select name="blocks[{{ $i }}][type]">@foreach(['heading'=>'სათაური','text'=>'ტექსტი','image'=>'სურათის ბმული','button'=>'ღილაკი','contact'=>'კონტაქტი','catalog'=>'კატალოგი','hours'=>'სამუშაო საათები'] as $value=>$label)<option value="{{ $value }}" @selected($block->type===$value)>{{ $label }}</option>@endforeach</select></div><div><label>ბლოკის სათაური</label><input name="blocks[{{ $i }}][title]" value="{{ $block->title }}"></div></div>
+<div class="two"><div><label>ტიპი</label><select name="blocks[{{ $i }}][type]">@foreach(['heading'=>'სათაური','text'=>'ტექსტი','image'=>'სურათის ბმული','button'=>'ღილაკი','contact'=>'კონტაქტი','catalog'=>'კატალოგი','hours'=>'სამუშაო საათები','inquiry'=>'მოთხოვნის ფორმა'] as $value=>$label)<option value="{{ $value }}" @selected($block->type===$value)>{{ $label }}</option>@endforeach</select></div><div><label>ბლოკის სათაური</label><input name="blocks[{{ $i }}][title]" value="{{ $block->title }}"></div></div>
 <label>ტექსტი / სურათის URL / სამუშაო საათები</label><textarea name="blocks[{{ $i }}][text]" rows="3">{{ $block->content['text'] ?? '' }}</textarea>
 <label>ღილაკის URL ან გარე სურათის URL</label><input name="blocks[{{ $i }}][url]" type="url" value="{{ $block->content['url'] ?? '' }}" placeholder="https://..."><label>სურათის ატვირთვა (JPG, PNG, WEBP · მაქს. 5MB)</label><input name="blocks[{{ $i }}][image]" type="file" accept="image/jpeg,image/png,image/webp" data-image-upload>@if(!empty($block->content['image']))<img class="block-upload-preview" src="{{ Storage::disk('public')->url($block->content['image']) }}" alt="ატვირთული სურათი">@endif
 <label><input type="checkbox" name="blocks[{{ $i }}][is_visible]" value="1" @checked($block->is_visible)> ხილული იყოს</label></div>
@@ -76,6 +76,7 @@ function updatePreview(){
   else if(type==='button'){const action=document.createElement('span');action.textContent=title||'ღილაკი';card.append(action);}
   else if(type==='catalog'){const h=document.createElement('strong');h.textContent=title||'კატალოგი';const p=document.createElement('p');p.textContent='პროდუქტებისა და სერვისების კატალოგი';card.append(h,p);}
   else if(type==='contact'){const h=document.createElement('strong');h.textContent=title||'დაგვიკავშირდი';const p=document.createElement('p');p.textContent='საკონტაქტო ინფორმაცია ბიზნესის პროფილიდან';card.append(h,p);}
+  else if(type==='inquiry'){const h=document.createElement('strong');h.textContent=title||'მოთხოვნის გაგზავნა';const p=document.createElement('p');p.textContent='სახელი · ტელეფონი · სასურველი თარიღი · შეტყობინება';card.append(h,p);}
   root.append(card);
  });
  if(!root.children.length){const p=document.createElement('p');p.className='muted';p.textContent='ყველა ბლოკი დამალულია.';root.append(p);}
