@@ -1,34 +1,26 @@
 <!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>მაგიდები — {{ $business->name }}</title>
 <style>
-:root{color-scheme:dark;--bg:#090812;--panel:#141122;--line:#2a2540;--muted:#aaa3bd;--text:#f8f6ff;--accent:#9b72ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Inter,system-ui,sans-serif}main{max-width:1200px;margin:32px auto;padding:0 18px}a{color:#cbbaff;text-decoration:none}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.muted{color:var(--muted)}.panel,.table-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.table-card h2{margin:0 0 8px}.pill{display:inline-block;padding:5px 9px;border-radius:30px;background:#302a43;color:#ddd1ff;font-size:12px}.pill.busy{background:#553e22;color:#ffe0a3}.pill.free{background:#174632;color:#a6f0c9}
-.btn{display:inline-block;border:0;border-radius:8px;padding:10px 13px;background:var(--accent);color:white;font-weight:700;margin-top:8px}.empty{padding:24px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
-@media(max-width:600px){main{margin:18px auto}.table-card{padding:14px}}
-</style>@include('partials.design-system')
-</head><body><main>
-<header><div><a href="{{ route('dashboard') }}">← ბიზნეს-კაბინეტი</a><h1 style="margin:12px 0 4px">მაგიდების მართვა</h1><p class="muted">{{ $business->name }} · მაგიდები წარმოდგენილია QR კოდებით</p></div>
-<div><a class="btn" href="{{ route('business.qr.index',$business) }}">QR კოდების მართვა</a> <a class="btn" href="{{ route('business.kitchen',$business) }}">სამზარეულო</a></div></header>
-<section class="panel"><strong>{{ $tables->count() }}</strong> მაგიდის QR · <strong>{{ $activeOrders->flatten()->count() }}</strong> აქტიური შეკვეთა
-<p class="muted">მაგიდის დასამატებლად შექმენი QR კოდი „მაგიდის შეკვეთა“ კატეგორიით და მიუთითე განთავსების ადგილი, მაგალითად „მაგიდა 04“. QR უცვლელი რჩება და სტუმარი იმავე კოდით განათავსებს შეკვეთას.</p>
-</section>
-@if($tables->isEmpty())<div class="empty">მაგიდის QR ჯერ არ გაქვს. <a href="{{ route('business.qr.index',$business) }}">შექმენი პირველი მაგიდის QR →</a></div>
-@else<div class="grid">
-@foreach($tables as $table)
+:root{color-scheme:dark;--bg:#080711;--surface:#100e1b;--card:#151222;--line:#29243c;--text:#f7f5ff;--muted:#9690aa;--purple:#9b72ff;--purple2:#7547e8;--green:#43d6a0;--amber:#ffbf69;--red:#ff6f91}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% -15%,#302052 0,transparent 42%),var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}a{color:#cbb7ff;text-decoration:none}a:hover{color:#fff}main{max-width:1380px;margin:auto;padding:30px 26px 60px}
+.topbar,.heading,.actions,.card-head,.stats{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.topbar{padding-bottom:22px;border-bottom:1px solid var(--line)}.brand{font-size:13px;font-weight:900;letter-spacing:.16em;color:#d9ccff}.nav{display:flex;gap:9px;flex-wrap:wrap}.nav a,.btn{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#171326;color:#d8cff0;font-weight:700}.nav a.active,.btn.primary{background:linear-gradient(120deg,var(--purple2),var(--purple));border-color:transparent;color:white;box-shadow:0 8px 24px #7547e833}
+.heading{margin:30px 0 22px;align-items:end}.eyebrow{color:var(--purple);font-weight:800;font-size:11px;letter-spacing:.18em;text-transform:uppercase}.heading h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.04em;margin:8px 0}.sub{color:var(--muted);margin:0}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.stat,.table-card,.empty,.info{background:linear-gradient(145deg,#171426,#100e1b);border:1px solid var(--line);border-radius:17px}.stat{padding:19px}.stat span{color:var(--muted);font-size:12px}.stat strong{display:block;font-size:29px;margin-top:9px;letter-spacing:-.04em}.stat small{color:#bba6ff}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:30px 0 14px}.section-title h2{font-size:17px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.table-card{padding:18px;position:relative;overflow:hidden;transition:transform .18s,border-color .18s}.table-card:hover{transform:translateY(-3px);border-color:#6d53a4}.table-card:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--green)}.table-card.busy:before{background:var(--amber)}.table-number{font-size:21px;font-weight:850;letter-spacing:-.03em}.status{font-size:11px;font-weight:800;padding:6px 10px;border-radius:30px;background:#123b30;color:#8df0c6}.status.busy{background:#48321c;color:#ffd18c}.meta{color:var(--muted);font-size:12px;margin:10px 0 16px}.order-line{padding:10px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}.order-line strong{font-size:12px}.order-line span{color:var(--muted);font-size:12px}.card-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;font-weight:700}.empty{padding:36px;text-align:center;color:var(--muted)}.empty strong{display:block;color:white;font-size:17px;margin-bottom:8px}.info{padding:16px 18px;color:var(--muted);font-size:13px;line-height:1.7;margin-top:22px}
+@media(max-width:950px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){main{padding:18px 14px 40px}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:span 2}.grid{grid-template-columns:1fr}.heading{align-items:start}.stat strong{font-size:24px}}
+</style>@include('partials.design-system')</head><body><main>
+<div class="topbar"><div class="brand">oneQR <span style="color:var(--purple)">/ BUSINESS</span></div><nav class="nav"><a href="{{ route('dashboard') }}">მიმოხილვა</a><a href="{{ route('business.orders.index',$business) }}">შეკვეთები</a><a href="{{ route('business.kitchen',$business) }}">სამზარეულო</a><a class="active" href="{{ route('business.tables.index',$business) }}">მაგიდები</a><a href="{{ route('business.qr.index',$business) }}">QR კოდები</a></nav></div>
+<div class="heading"><div><div class="eyebrow">OPERATIONS / TABLES</div><h1>მაგიდების მართვა</h1><p class="sub">{{ $business->name }} · მაგიდების QR-კოდები და მიმდინარე შეკვეთები</p></div><div class="actions"><a class="btn" href="{{ route('business.qr.index',$business) }}">QR-ების მართვა ↗</a><a class="btn primary" href="{{ route('business.kitchen',$business) }}">სამზარეულოს გახსნა</a></div></div>
+<section class="stats"><div class="stat"><span>სულ მაგიდები</span><strong>{{ $tables->count() }}</strong><small>აქტიური QR კოდები</small></div><div class="stat"><span>დაკავებული მაგიდები</span><strong>{{ $tables->filter(fn($table) => $activeOrders->has($table->placement_label ?: $table->name) && $activeOrders->get($table->placement_label ?: $table->name)->isNotEmpty())->count() }}</strong><small>მიმდინარე შეკვეთით</small></div><div class="stat"><span>აქტიური შეკვეთები</span><strong>{{ $activeOrders->flatten()->count() }}</strong><small>ახალი · დადასტურებული · მზადდება</small></div></section>
+<div class="section-title"><h2>ყველა მაგიდა</h2><span class="sub">განახლებული ინფორმაცია შეკვეთების სისტემიდან</span></div>
+@if($tables->isEmpty())<div class="empty"><strong>მაგიდები ჯერ არ დაგიმატებია</strong>შექმენი QR კოდი კატეგორიით „მაგიდის შეკვეთა“ და მიუთითე მაგიდის ნომერი.<p><a class="btn primary" href="{{ route('business.qr.index',$business) }}">პირველი მაგიდის QR-ის შექმნა</a></p></div>
+@else<div class="grid">@foreach($tables as $table)
 @php($label = $table->placement_label ?: $table->name)
 @php($orders = $activeOrders->get($label, collect()))
-<article class="table-card">
-<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h2>{{ $label }}</h2><span class="pill {{ $orders->isNotEmpty() ? 'busy' : 'free' }}">{{ $orders->isNotEmpty() ? 'შეკვეთა აქტიურია' : 'თავისუფალი' }}</span></div>
-<p class="muted">{{ $table->branch?->name ?? 'ძირითადი ფილიალი' }} · სკანირება {{ number_format($table->scan_count) }}</p>
-@if($orders->isNotEmpty())
-<p><strong>{{ $orders->count() }} აქტიური შეკვეთა</strong></p>
-@foreach($orders as $order)<p class="muted">#{{ $order->order_number }} · {{ $order->status }} · {{ number_format((float)$order->total,2) }} {{ $order->currency }}</p>@endforeach
-@else<p class="muted">ამ მაგიდაზე აქტიური შეკვეთა არ ფიქსირდება.</p>@endif
-<div><a href="{{ route('business.qr.print',[$business,$table->id]) }}">QR ბარათის ბეჭდვა ↗</a> · <a href="{{ route('qr.redirect',$table->public_id) }}" target="_blank" rel="noopener">QR-ის შემოწმება ↗</a></div>
-@if($canManageQr)<p><a href="{{ route('business.qr.index',[$business,'placement'=>$label]) }}">მაგიდის QR-ის რედაქტირება →</a></p>@endif
-</article>
-@endforeach
-</div>@endif
+<article class="table-card {{ $orders->isNotEmpty() ? 'busy' : '' }}"><div class="card-head"><div class="table-number">{{ $label }}</div><span class="status {{ $orders->isNotEmpty() ? 'busy' : '' }}">{{ $orders->isNotEmpty() ? 'შეკვეთა აქტიურია' : '● თავისუფალია' }}</span></div>
+<div class="meta">{{ $table->branch?->name ?? 'ძირითადი ფილიალი' }} <span style="padding:0 6px">·</span> {{ number_format($table->scan_count) }} სკანირება</div>
+@if($orders->isNotEmpty())@foreach($orders as $order)<div class="order-line"><div><strong>#{{ $order->order_number }}</strong><br><span>{{ $order->status }}</span></div><strong>{{ number_format((float)$order->total,2) }} {{ $order->currency }}</strong></div>@endforeach
+@else<div class="order-line"><span>ამჟამად შეკვეთა არ არის</span><span>—</span></div>@endif
+<div class="card-actions"><a href="{{ route('business.qr.print',[$business,$table->id]) }}">ბარათის ბეჭდვა ↗</a><a href="{{ route('qr.redirect',$table->public_id) }}" target="_blank" rel="noopener">QR-ის ნახვა ↗</a></div></article>
+@endforeach</div>@endif
+<div class="info"><strong style="color:#ded5f6">როგორ მუშაობს?</strong><br>თითოეულ მაგიდას აქვს საკუთარი მუდმივი QR კოდი. სტუმარი სკანირებით ხვდება შენს გვერდზე, ხოლო შეკვეთის გაფორმებისას მაგიდის ნომერი ავტომატურად მიება შეკვეთას.</div>
 </main></body></html>
