@@ -2,6 +2,23 @@
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>QR კოდები — oneQR</title>
 <style>
 :root{color-scheme:dark;--bg:#090812;--panel:#121020;--line:#29243d;--text:#f6f3ff;--muted:#aaa3bd;--purple:#9b72ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Inter,system-ui,sans-serif}main{max-width:1050px;margin:45px auto;padding:0 22px}a{color:#c6b1ff;text-decoration:none}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}label{display:block;color:#d7d0e5;font-size:13px;margin:12px 0 6px}input,select{width:100%;background:#090812;border:1px solid var(--line);border-radius:9px;padding:12px;color:white}button,.btn{display:inline-block;border:0;border-radius:9px;padding:11px 15px;background:linear-gradient(100deg,#7144e8,#9b72ff);color:white;font-weight:800;cursor:pointer;margin-top:12px}.item{border-top:1px solid var(--line);padding:20px 0}.muted{color:var(--muted);font-size:13px}.url{word-break:break-all}.success{padding:12px;border:1px solid #347d5b;color:#9ee5bd;border-radius:9px}.qr-preview{width:150px;height:150px;background:white;padding:8px;border-radius:10px;display:block;margin:12px 0}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+</style>
+<style>
+body{background:radial-gradient(ellipse at 80% -20%,#3a286455,transparent 42%),#080711!important}
+main{max-width:1280px!important;margin:30px auto!important}
+main>a:first-child{display:inline-flex;padding:9px 13px;border:1px solid var(--oq-line);border-radius:10px;background:#151222;margin-bottom:16px}
+main>h1{font-size:clamp(28px,4vw,42px)!important;margin:14px 0 7px}
+main>.muted{margin-bottom:20px}
+.panel{box-shadow:0 14px 38px #0003!important}
+.panel h2{font-size:19px;margin-top:0}
+.grid{gap:14px!important}
+.item{padding:22px 0!important}
+.item h3{font-size:18px}
+.qr-preview{width:164px;height:164px;box-shadow:0 8px 26px #0004}
+.actions{gap:9px}
+.actions .btn{font-size:12px}
+input,select{min-height:44px}
+@media(max-width:600px){main{margin:20px auto!important}.panel{padding:16px!important}.qr-preview{width:142px;height:142px}}
 </style>@include('partials.design-system')
 </head><body><main><a href="{{ route('dashboard') }}">← ბიზნეს-კაბინეტი</a><h1>{{ $business->name }} — QR კოდები</h1><p class="muted">დინამიკური QR-ის მისამართი უცვლელია. შეგიძლია დანიშნულების ბმული ნებისმიერ დროს შეცვალო.</p>
 <div class="actions">@if($canManageQr)<a class="btn" href="{{ route('business.analytics', $business) }}">ანალიტიკის ნახვა ↗</a> <a class="btn" href="{{ route('business.tables.index', $business) }}">მაგიდების მართვა</a>@else<span class="muted">მხოლოდ ნახვის უფლება</span>@endif</div>
