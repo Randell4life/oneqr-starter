@@ -163,4 +163,84 @@ class BusinessDirectoryTest extends TestCase
             ->assertDontSee('category=retail');
     }
 
+
+    public function test_directory_map_includes_only_public_businesses_with_coordinates(): void
+    {
+        $owner = User::factory()->create();
+
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Mapped Cafe',
+            'slug' => 'mapped-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'city' => 'Tbilisi',
+            'is_published' => true,
+            'latitude' => 41.7151,
+            'longitude' => 44.8271,
+        ]);
+
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Unmapped Cafe',
+            'slug' => 'unmapped-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => true,
+        ]);
+
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Hidden Mapped Cafe',
+            'slug' => 'hidden-mapped-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => false,
+            'latitude' => 41.7151,
+            'longitude' => 44.8271,
+        ]);
+
+        $this->get(route('business.directory'))
+            ->assertOk()
+            ->assertSee('Mapped Cafe')
+            ->assertDontSee('Unmapped Cafe')
+            ->assertDontSee('Hidden Mapped Cafe');
+    }
+
+    public function test_nearby_directory_search_filters_businesses_using_coordinates(): void
+    {
+        $owner = User::factory()->create();
+
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Nearby Cafe',
+            'slug' => 'nearby-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => true,
+            'latitude' => 41.7151,
+            'longitude' => 44.8271,
+        ]);
+
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Distant Cafe',
+            'slug' => 'distant-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => true,
+            'latitude' => 42.7000,
+            'longitude' => 41.7000,
+        ]);
+
+        $this->get(route('business.directory', [
+            'nearby' => 1,
+            'lat' => 41.7151,
+            'lng' => 44.8271,
+        ]))
+            ->assertOk()
+            ->assertSee('Nearby Cafe')
+            ->assertDontSee('Distant Cafe');
+    }
+
 }
