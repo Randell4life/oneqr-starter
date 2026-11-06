@@ -173,7 +173,7 @@ class BusinessSubscriptionPaymentController extends Controller
         $currency = is_array($details['amount'] ?? null)
             ? ($details['amount']['currency'] ?? null)
             : ($details['currency'] ?? null);
-        $merchantPaymentId = $details['merchantPaymentId'] ?? $payment->merchant_payment_id;
+        $merchantPaymentId = $details['merchantPaymentId'] ?? null;
 
         if (
             $amount !== $expectedAmount

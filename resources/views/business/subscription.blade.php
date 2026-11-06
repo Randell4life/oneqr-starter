@@ -26,7 +26,7 @@ li{margin:9px 0;color:#d8d2e6}.btn{display:inline-block;margin-top:14px;padding:
 <h1>გამოწერა და გეგმები</h1><p class="muted">{{ $business->name }} — მართე ლიმიტები და შეარჩიე ბიზნესის მასშტაბზე მორგებული პაკეტი.</p>
 <section class="panel">
 <div class="tag">მიმდინარე გეგმა</div><h2>{{ $currentPlan->name }}</h2>
-<p class="muted">სტატუსი: {{ $subscription?->status === 'active' ? 'აქტიური' : ($subscription?->status ?? 'უფასო გეგმა') }}</p>
+<p class="muted">სტატუსი: {{ $subscription?->status === 'active' ? 'აქტიური' : ($subscription?->status === 'trialing' ? 'საცდელი პერიოდი' : 'უფასო გეგმა') }}</p>\n@if(!$subscription && $latestSubscription && $latestSubscription->ends_at && $latestSubscription->ends_at->isPast())<div class="notice">წინა გეგმის ვადა ამოიწურა {{ $latestSubscription->ends_at->format('d.m.Y') }}-ს. ანგარიში გადავიდა Free გეგმაზე.</div>@endif
 <div class="usage">
 @foreach(['qr_codes'=>'QR კოდები','branches'=>'ფილიალები','team_members'=>'აქტიური თანამშრომლები'] as $key=>$label)
 <div><div class="muted">{{ $label }}</div><div class="value">{{ $usage[$key] }} / {{ $currentPlan->limits[$key] ?? '∞' }}</div></div>
@@ -75,7 +75,7 @@ li{margin:9px 0;color:#d8d2e6}.btn{display:inline-block;margin-top:14px;padding:
 <thead><tr><th>თარიღი</th><th>გეგმა</th><th>თანხა</th><th>სტატუსი</th><th>პროვაიდერი</th></tr></thead>
 <tbody>
 @foreach($payments as $payment)
-<tr><td>{{ $payment->created_at->format('d.m.Y H:i') }}</td><td>{{ $payment->plan->name }}</td><td>{{ number_format((float)$payment->amount,2) }} {{ $payment->currency }}</td><td>{{ $payment->status }}</td><td>{{ strtoupper($payment->provider) }}</td></tr>
+<tr><td>{{ $payment->created_at->format('d.m.Y H:i') }}</td><td>{{ $payment->plan->name }}</td><td>{{ number_format((float)$payment->amount,2) }} {{ $payment->currency }}</td><td>{{ ['pending'=>'მოლოდინში','initiated'=>'ინიციალიზებულია','paid'=>'გადახდილია','failed'=>'შეცდომა','expired'=>'ვადა ამოიწურა','review'=>'შემოწმებას საჭიროებს'][$payment->status] ?? $payment->status }}</td><td>{{ strtoupper($payment->provider) }}</td></tr>
 @endforeach
 </tbody></table></div>
 @endif

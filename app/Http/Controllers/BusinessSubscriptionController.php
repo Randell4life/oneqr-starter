@@ -19,7 +19,7 @@ class BusinessSubscriptionController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        $subscription = $access->subscription($business);
+        $subscription = $access->subscription($business);\n        $latestSubscription = $business->subscriptions()->with('plan')->latest('starts_at')->first();
         $currentPlan = $access->plan($business);
         $usage = $access->usage($business);
         $payments = BusinessSubscriptionPayment::query()
@@ -32,7 +32,7 @@ class BusinessSubscriptionController extends Controller
         return view('business.subscription', compact(
             'business',
             'plans',
-            'subscription',
+            'subscription',\n            'latestSubscription',
             'currentPlan',
             'usage',
             'payments'
