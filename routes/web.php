@@ -34,6 +34,10 @@ Route::post('/payments/tbc/callback', [BusinessSubscriptionPaymentController::cl
 
 
 Route::middleware('auth')->group(function (): void {
+    Route::get('/favorites', [BusinessFavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/p/{slug}/favorite', [BusinessFavoriteController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:20,1')->name('business.public.favorite.store');
+    Route::delete('/p/{slug}/favorite', [BusinessFavoriteController::class, 'destroy'])->where('slug', '[A-Za-z0-9-]+')->name('business.public.favorite.destroy');
+
     Route::get('/dashboard', function () {
         $user = auth()->user();
         $businesses = $user->businesses()->withCount('qrCodes')->latest()->get();
