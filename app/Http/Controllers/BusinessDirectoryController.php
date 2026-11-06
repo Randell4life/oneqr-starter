@@ -19,6 +19,7 @@ class BusinessDirectoryController extends Controller
 
         $query = Business::query()
             ->where('is_published', true)
+            ->where('status', 'active')
             ->withCount(['catalogItems as available_items_count' => fn ($items) => $items->where('is_available', true)])
             ->withAvg(['reviews as approved_reviews_avg_rating' => fn ($reviews) => $reviews->where('status', 'approved')], 'rating')
             ->withCount(['reviews as approved_reviews_count' => fn ($reviews) => $reviews->where('status', 'approved')]);
@@ -58,6 +59,7 @@ class BusinessDirectoryController extends Controller
 
         $cities = Business::query()
             ->where('is_published', true)
+            ->where('status', 'active')
             ->whereNotNull('city')
             ->where('city', '!=', '')
             ->distinct()
