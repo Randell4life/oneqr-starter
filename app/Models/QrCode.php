@@ -13,7 +13,7 @@ class QrCode extends Model
 
     protected $fillable = [
         'business_id', 'branch_id', 'name', 'public_id', 'destination_url', 'category',
-        'is_active', 'scan_count', 'last_scanned_at',
+        'is_active', 'scan_count', 'last_scanned_at', 'placement_label', 'campaign_name',
     ];
 
     protected function casts(): array
