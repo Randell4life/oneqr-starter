@@ -25,6 +25,8 @@ class Business extends Model
         'cover_path',
         'address',
         'city',
+        'latitude',
+        'longitude',
         'accent_color',
         'is_published',
         'published_at',
