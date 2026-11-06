@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');
     Route::get('/businesses/{business}/inbox', [\App\Http\Controllers\BusinessInboxController::class, 'index'])->name('business.inbox.index');
     Route::patch('/businesses/{business}/inbox/{type}/{record}', [\App\Http\Controllers\BusinessInboxController::class, 'update'])->whereNumber('record')->name('business.inbox.update');
+    Route::post('/businesses/{business}/inbox/{type}/{record}/interactions', [\App\Http\Controllers\BusinessInboxController::class, 'storeInteraction'])->whereNumber('record')->name('business.inbox.interactions.store');
     Route::patch('/businesses/{business}/inquiries/{inquiry}', [BusinessInquiryController::class, 'updateStatus'])->whereNumber('inquiry')->name('business.inquiries.status');
     Route::patch('/businesses/{business}/reviews/{review}', [BusinessReviewController::class, 'updateStatus'])->whereNumber('review')->name('business.reviews.status');
     Route::post('/businesses/{business}/catalog', [BusinessCatalogController::class, 'store'])->name('business.catalog.store');
