@@ -85,6 +85,40 @@ class BusinessInboxTest extends TestCase
         ]);
     }
 
+    public function test_owner_can_add_a_customer_contact_history_entry(): void
+    {
+        $owner = User::factory()->create();
+        $business = $this->business($owner, 'inbox-history');
+        $inquiry = $business->inquiries()->create([
+            'customer_name' => 'Customer',
+            'customer_phone' => '+995555123456',
+            'inquiry_type' => 'general',
+        ]);
+
+        $this->actingAs($owner)
+            ->post(route('business.inbox.interactions.store', [$business, 'inquiry', $inquiry->id]), [
+                'channel' => 'phone',
+                'summary' => 'დავუკავშირდი და შევთანხმდით ფასის შეთავაზებაზე.',
+                'occurred_at' => now()->format('Y-m-d H:i:s'),
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('status');
+
+        $this->assertDatabaseHas('business_customer_interactions', [
+            'business_id' => $business->id,
+            'user_id' => $owner->id,
+            'contactable_type' => \App\Models\BusinessInquiry::class,
+            'contactable_id' => $inquiry->id,
+            'channel' => 'phone',
+            'summary' => 'დავუკავშირდი და შევთანხმდით ფასის შეთავაზებაზე.',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('business.inbox.index', $business))
+            ->assertOk()
+            ->assertSee('დავუკავშირდი და შევთანხმდით ფასის შეთავაზებაზე.');
+    }
+
     public function test_inactive_team_member_cannot_access_customer_inbox(): void
     {
         $owner = User::factory()->create();
