@@ -2,7 +2,31 @@
 <html lang="{{ $business->default_locale ?: 'ka' }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="{{ $business->tagline ?: Str::limit(strip_tags($business->description ?? ''), 150) }}"><title>{{ $business->name }} — oneQR</title>
 <style>
 :root{color-scheme:dark;--accent:{{ $business->accent_color ?: '#8B5CF6' }};--bg:#090812;--panel:#141122;--line:#2a2540;--muted:#aaa3bd;--text:#f8f6ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 55%),var(--bg);color:var(--text);font:16px Inter,system-ui,sans-serif}.wrap{max-width:820px;margin:0 auto;padding:24px}.cover{height:260px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,var(--accent),#19142b)}.cover img{width:100%;height:100%;object-fit:cover}.profile{position:relative;margin:-52px 24px 0}.logo{width:104px;height:104px;border-radius:24px;border:5px solid var(--bg);background:#211b35;object-fit:cover}.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px;margin-top:18px}.muted{color:var(--muted);line-height:1.7}.type{display:inline-block;background:color-mix(in srgb,var(--accent) 20%,transparent);color:#e7ddff;border-radius:30px;padding:7px 12px;font-size:12px}h1{font-size:clamp(30px,6vw,46px);margin:15px 0 6px;letter-spacing:-1.5px}.tagline{font-size:19px;color:#e2d9f8}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.action{display:inline-block;text-decoration:none;color:white;background:var(--accent);padding:12px 17px;border-radius:12px;font-weight:700}.action.secondary{background:#242035;border:1px solid var(--line)}footer{text-align:center;color:var(--muted);font-size:12px;padding:30px}@media(max-width:600px){.wrap{padding:14px}.cover{height:190px}.card{padding:20px}.profile{margin-left:14px}}
-</style>@include('partials.design-system')
+</style>@include('partials.design-system')<style>
+body{background:radial-gradient(ellipse at 50% -18%,color-mix(in srgb,var(--accent) 27%,transparent),transparent 58%),#080711!important}
+.wrap{max-width:900px!important;padding:28px 22px!important}
+.cover{height:clamp(190px,30vw,330px);border:1px solid color-mix(in srgb,var(--accent) 32%,#302a49);box-shadow:0 22px 60px #0005}
+.profile{margin-top:-58px}
+.logo{box-shadow:0 10px 28px #0006}
+.card{background:linear-gradient(145deg,#171626f5,#10101af5)!important;border-color:#302c45!important;box-shadow:0 14px 38px #0003!important}
+.card h2{font-size:clamp(20px,3vw,25px);margin-top:0}
+.card h3{font-size:18px;margin:13px 0 7px}
+.type{border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);background:color-mix(in srgb,var(--accent) 20%,#141122)}
+.action{background:linear-gradient(110deg,color-mix(in srgb,var(--accent) 75%,#39206f),var(--accent));box-shadow:0 7px 20px color-mix(in srgb,var(--accent) 22%,transparent);transition:transform .18s,filter .18s}
+.action:hover{color:#fff;transform:translateY(-2px);filter:brightness(1.08)}
+.action.secondary{background:#211e31;border-color:#39344f}
+#catalog>div[style*="grid-template-columns"]{align-items:stretch}
+#catalog article{display:flex;flex-direction:column;gap:7px;background:linear-gradient(145deg,#171626,#10101a)!important;border-color:#302c45!important;box-shadow:0 10px 28px #0003;transition:transform .2s,border-color .2s}
+#catalog article:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 55%,#302c45)!important}
+#catalog article>img{height:190px!important;border:1px solid #ffffff12}
+#catalog article h3{margin:6px 0 0}
+#catalog article form{margin-top:auto;flex-wrap:wrap}
+#catalog article input{min-height:42px}
+#catalog article button{flex:1}
+#catalog>div:first-child{margin-top:18px}
+footer{border-top:1px solid #29283e;margin-top:30px;letter-spacing:.04em}
+@media(max-width:600px){.wrap{padding:14px!important}.cover{height:190px;border-radius:18px}.profile{margin-left:12px;margin-top:-48px}.logo{width:88px;height:88px;border-radius:20px}.card{padding:18px!important;border-radius:18px!important}.actions .action{flex:1;text-align:center}.card#catalog>div:first-child{align-items:flex-start!important}}
+</style>
 </head><body><main class="wrap"><div class="cover">@if($business->cover_path)<img src="{{ Storage::disk('public')->url($business->cover_path) }}" alt="">@endif</div><section class="profile">@if($business->logo_path)<img class="logo" src="{{ Storage::disk('public')->url($business->logo_path) }}" alt="{{ $business->name }} ლოგო">@else<div class="logo" style="display:grid;place-items:center;font-size:34px;font-weight:900;color:var(--accent)">{{ mb_substr($business->name,0,1) }}</div>@endif</section>
 <section class="card"><span class="type">{{ ['restaurant'=>'რესტორანი / კაფე','retail'=>'მაღაზია','hotel'=>'სასტუმრო','services'=>'სერვისები','beauty'=>'სილამაზე და მოვლა','events'=>'ღონისძიებები','other'=>'ბიზნესი'][$business->business_type] ?? 'ბიზნესი' }}</span><h1>{{ $business->name }}</h1>@if($business->tagline)<div class="tagline">{{ $business->tagline }}</div>@endif
 @if($business->description)<p class="muted" style="white-space:pre-line">{{ $business->description }}</p>@endif
