@@ -59,6 +59,28 @@ class BusinessInboxController extends Controller
         ]);
     }
 
+    public function storeInteraction(Request $request, Business $business, string $type, int $record, BusinessAccess $access): RedirectResponse
+    {
+        $access->assertCanManageQr($request->user(), $business);
+        abort_unless(in_array($type, ['inquiry', 'order-request'], true), 404);
+
+        $relation = $type === 'inquiry' ? $business->inquiries() : $business->orderRequests();
+        $item = $relation->findOrFail($record);
+
+        $data = $request->validate([
+            'channel' => ['required', Rule::in(['phone', 'email', 'whatsapp', 'in_person', 'note'])],
+            'summary' => ['required', 'string', 'max:3000'],
+            'occurred_at' => ['required', 'date'],
+        ]);
+
+        $item->interactions()->create($data + [
+            'business_id' => $business->id,
+            'user_id' => $request->user()->id,
+        ]);
+
+        return back()->with('status', 'კომუნიკაციის ჩანაწერი ისტორიას დაემატა.');
+    }
+
     public function update(Request $request, Business $business, string $type, int $record, BusinessAccess $access): RedirectResponse
     {
         $access->assertCanManageQr($request->user(), $business);
