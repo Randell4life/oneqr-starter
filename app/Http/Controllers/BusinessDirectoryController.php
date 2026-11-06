@@ -55,13 +55,10 @@ class BusinessDirectoryController extends Controller
         if (!empty($filters['nearby']) && isset($filters['lat'], $filters['lng'])) {
             $latitude = (float) $filters['lat'];
             $longitude = (float) $filters['lng'];
-            $distance = 25;
-            $query->whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->whereRaw(
-                    '(6371 * acos(least(1, greatest(-1, cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))))) <= ?',
-                    [$latitude, $longitude, $latitude, $distance]
-                );
+            $latitudeDelta = 25 / 111;
+            $longitudeDelta = 25 / (111 * max(abs(cos(deg2rad($latitude))), 0.01));
+            $query->whereBetween('latitude', [max(-90, $latitude - $latitudeDelta), min(90, $latitude + $latitudeDelta)])
+                ->whereBetween('longitude', [max(-180, $longitude - $longitudeDelta), min(180, $longitude + $longitudeDelta)]);
         }
 
         match ($filters['sort'] ?? 'recent') {
@@ -86,16 +83,17 @@ class BusinessDirectoryController extends Controller
                         ->orWhere('tagline', 'like', "%{$term}%")
                         ->orWhere('description', 'like', "%{$term}%")
                         ->orWhere('city', 'like', "%{$term}%")
-                        ->orWhere('address', 'like', "%{$term}%");
+                        ->orWhere('address', 'like', "%{$term}%")
+                        ->orWhereHas('catalogItems', fn ($items) => $items->where('is_available', true)->where('name', 'like', "%{$term}%"));
                 });
             })
             ->when(!empty($filters['nearby']) && isset($filters['lat'], $filters['lng']), function ($q) use ($filters): void {
                 $latitude = (float) $filters['lat'];
                 $longitude = (float) $filters['lng'];
-                $q->whereRaw(
-                    '(6371 * acos(least(1, greatest(-1, cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))))) <= ?',
-                    [$latitude, $longitude, $latitude, 25]
-                );
+                $latitudeDelta = 25 / 111;
+                $longitudeDelta = 25 / (111 * max(abs(cos(deg2rad($latitude))), 0.01));
+                $q->whereBetween('latitude', [max(-90, $latitude - $latitudeDelta), min(90, $latitude + $latitudeDelta)])
+                    ->whereBetween('longitude', [max(-180, $longitude - $longitudeDelta), min(180, $longitude + $longitudeDelta)]);
             })
             ->select(['id', 'name', 'slug', 'business_type', 'city', 'address', 'latitude', 'longitude'])
             ->limit(250)
