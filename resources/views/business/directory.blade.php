@@ -18,7 +18,7 @@ input,select{width:100%;min-height:46px;border-radius:10px;border:1px solid #3a3
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .card{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#191727,#11101b);transition:transform .18s,border-color .18s}.card:hover{transform:translateY(-3px);border-color:#8c6ce0}
 .cover{height:155px;background:linear-gradient(135deg,#3a2869,#171426);overflow:hidden}.cover img{width:100%;height:100%;object-fit:cover}.body{padding:17px}.top{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;flex:none;border-radius:13px;object-fit:cover;background:#28223d;border:1px solid #ffffff1c}.initial{display:grid;place-items:center;color:#c6b4ff;font-size:21px;font-weight:900}.type{font-size:11px;color:#c7b8ff;background:#8b5cf622;border:1px solid #9b7cff33;padding:5px 9px;border-radius:30px}.name{font-size:19px;font-weight:850;letter-spacing:-.02em;margin:0 0 5px}.tagline{color:#c0bacd;font-size:13px;line-height:1.5;margin:13px 0;min-height:38px}.details{display:flex;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:12px;padding-top:12px;border-top:1px solid #ffffff13}.open{display:flex;justify-content:space-between;align-items:center;margin-top:15px;color:#c7b4ff;font-size:13px;font-weight:800}
-.empty{padding:45px 20px;text-align:center;border:1px dashed #4b4365;border-radius:18px;color:var(--muted)}.pagination{margin:28px 0 50px}.pagination nav{display:flex;justify-content:center;gap:7px}.pagination a,.pagination span{padding:9px 13px;border:1px solid var(--line);border-radius:9px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:34px 0 16px}.section-head h2{font-size:23px;letter-spacing:-.04em;margin:0}.section-head p{color:var(--muted);font-size:12px;margin:6px 0 0}.chips{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 28px}.chip{display:inline-flex;gap:9px;align-items:center;padding:10px 13px;border:1px solid var(--line);border-radius:12px;background:#171426;color:#e8e2f7;font-size:13px;font-weight:700}.chip:hover{border-color:#8c6ce0}.chip small{color:#aaa1be;font-weight:500}.empty{padding:45px 20px;text-align:center;border:1px dashed #4b4365;border-radius:18px;color:var(--muted)}.pagination{margin:28px 0 50px}.pagination nav{display:flex;justify-content:center;gap:7px}.pagination a,.pagination span{padding:9px 13px;border:1px solid var(--line);border-radius:9px}
 footer{border-top:1px solid #ffffff16;padding:28px 0;color:#88839d;font-size:12px;margin-top:45px}
 @media(max-width:900px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters input{grid-column:span 2}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:580px){.wrap{width:calc(100% - 28px)}.nav{height:68px}.navlinks a:not(.btn){display:none}.hero{padding:42px 0 18px}.filters{grid-template-columns:1fr}.filters input{grid-column:auto}.filters button{min-height:45px}.grid{grid-template-columns:1fr}.cover{height:175px}.meta{align-items:flex-start;flex-direction:column}}
@@ -28,6 +28,39 @@ footer{border-top:1px solid #ffffff16;padding:28px 0;color:#88839d;font-size:12p
 <header class="wrap nav"><a class="brand" href="{{ route('home') }}">one<span>QR</span></a><nav class="navlinks"><a href="{{ route('home') }}">მთავარი</a><a href="{{ route('business.directory') }}">აღმოაჩინე</a>@auth<a href="{{ route('dashboard') }}">კაბინეტი</a>@else<a class="btn" href="{{ route('login') }}">შესვლა</a><a class="btn primary" href="{{ route('register') }}">ბიზნესის დამატება</a>@endauth</nav></header>
 <main class="wrap">
 <section class="hero"><span class="eyebrow">ONEQR DISCOVER</span><h1>აღმოაჩინე შენი შემდეგი<br>საყვარელი ბიზნესი.</h1><p>იპოვე საინტერესო ადგილები, პროდუქტები და მომსახურება საქართველოში. დაათვალიერე ბიზნესები უფასოდ — რეგისტრაციის გარეშე.</p></section>
+@if(!$hasFilters)
+@if($categoryCounts->isNotEmpty())
+<section aria-label="კატეგორიები">
+<div class="section-head"><div><h2>დაათვალიერე კატეგორიები</h2><p>აირჩიე სასურველი მიმართულება</p></div></div>
+<div class="chips">
+@foreach($categoryLabels as $key=>$label)
+@if(($categoryCounts[$key] ?? 0)>0)
+<a class="chip" href="{{ route('business.directory',['category'=>$key]) }}">{{ $label }} <small>{{ $categoryCounts[$key] }}</small></a>
+@endif
+@endforeach
+</div>
+</section>
+@endif
+@if($popularBusinesses->isNotEmpty())
+<section aria-label="პოპულარული ბიზნესები">
+<div class="section-head"><div><h2>პოპულარული ბიზნესები</h2><p>რჩეულებში შენახვისა და მომხმარებელთა შეფასებების მიხედვით</p></div></div>
+<div class="grid">
+@foreach($popularBusinesses as $popular)
+<a class="card" href="{{ route('business.public',$popular->slug) }}">
+<div class="cover">@if($popular->cover_path)<img src="{{ Storage::disk('public')->url($popular->cover_path) }}" alt="" loading="lazy">@endif</div>
+<div class="body"><div class="top">
+@if($popular->logo_path)<img class="logo" src="{{ Storage::disk('public')->url($popular->logo_path) }}" alt="" loading="lazy">@else<div class="logo initial">{{ mb_substr($popular->name,0,1) }}</div>@endif
+<div style="min-width:0"><div class="name">{{ $popular->name }}</div><span class="type">{{ $categoryLabels[$popular->business_type] ?? 'ბიზნესი' }}</span></div>
+</div>
+<p class="tagline">{{ $popular->tagline ?: \Illuminate\Support\Str::limit(strip_tags($popular->description ?? 'გაეცანი ბიზნესის შეთავაზებებს OneQR-ზე.'),95) }}</p>
+<div class="details">@if($popular->city)<span>📍 {{ $popular->city }}</span>@endif<span>♥ {{ $popular->favorites_count }} რჩეული</span>@if($popular->approved_reviews_count)<span>★ {{ number_format((float)$popular->approved_reviews_avg_rating,1) }} ({{ $popular->approved_reviews_count }})</span>@endif</div>
+<div class="open"><span>პროფილის ნახვა</span><span>→</span></div>
+</div></a>
+@endforeach
+</div>
+</section>
+@endif
+@endif
 <form class="filters" method="GET" action="{{ route('business.directory') }}">
 <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="მოძებნე ბიზნესი, პროდუქტი ან სერვისი..." aria-label="ძებნა">
 <select name="category" aria-label="კატეგორია"><option value="">ყველა კატეგორია</option>@foreach($categoryLabels as $key=>$label)<option value="{{ $key }}" @selected(($filters['category'] ?? '')===$key)>{{ $label }}</option>@endforeach</select>
