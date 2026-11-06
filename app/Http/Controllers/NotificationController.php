@@ -28,7 +28,14 @@ class NotificationController extends Controller
 
         $url = $record->data['url'] ?? route('notifications.index');
         $host = is_string($url) ? parse_url($url, PHP_URL_HOST) : null;
-        if (! is_string($url) || str_starts_with($url, '//') || ($host !== null && ! hash_equals($request->getHost(), $host))) {
+        $scheme = is_string($url) ? parse_url($url, PHP_URL_SCHEME) : null;
+        $isSafeRelativePath = is_string($url) && str_starts_with($url, '/') && ! str_starts_with($url, '//');
+        $isSameHostUrl = is_string($url)
+            && in_array($scheme, ['http', 'https'], true)
+            && $host !== null
+            && hash_equals($request->getHost(), $host);
+
+        if (! $isSafeRelativePath && ! $isSameHostUrl) {
             $url = route('notifications.index');
         }
 
