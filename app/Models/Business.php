@@ -102,4 +102,9 @@ class Business extends Model
     {
         return $this->hasMany(BusinessSubscription::class);
     }
+
+    public function favoritedBy(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'business_favorites')->withTimestamps();
+    }
 }

@@ -77,6 +77,10 @@ class BusinessCatalogTest extends TestCase
             'customer_phone' => '+995555123456',
             'status' => 'new',
         ]);
+
+        $notification = $business->owner->notifications()->latest()->first();
+        $this->assertNotNull($notification);
+        $this->assertSame('order_request.created', $notification->data['event']);
     }
 
     public function test_unavailable_item_cannot_receive_order_requests(): void

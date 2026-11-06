@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Support\BusinessAccess;
+use App\Services\BusinessActivityNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class BusinessInquiryController extends Controller
 {
-    public function store(Request $request, string $slug): RedirectResponse
+    public function store(Request $request, string $slug, BusinessActivityNotifier $notifier): RedirectResponse
     {
         $business = Business::query()
             ->where('slug', $slug)
@@ -27,6 +28,13 @@ class BusinessInquiryController extends Controller
         ]);
 
         $business->inquiries()->create($data);
+        $notifier->notify(
+            $business,
+            'inquiry.created',
+            'ახალი მოთხოვნა',
+            $data['customer_name'].'-მა გამოგიგზავნა ახალი მოთხოვნა.',
+            route('business.catalog.index', $business),
+        );
 
         return back()->with('inquiry_status', 'მოთხოვნა წარმატებით გაიგზავნა. ბიზნესი დაგიკავშირდებათ.');
     }

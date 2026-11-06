@@ -38,6 +38,10 @@ class BusinessReviewTest extends TestCase
             ->assertRedirect(route('business.public', $business->slug))
             ->assertSessionHas('review_status');
 
+        $notification = $business->owner->notifications()->latest()->first();
+        $this->assertNotNull($notification);
+        $this->assertSame('review.created', $notification->data['event']);
+
         $this->assertDatabaseHas('business_reviews', [
             'business_id' => $business->id,
             'customer_name' => 'ტესტი მომხმარებელი',

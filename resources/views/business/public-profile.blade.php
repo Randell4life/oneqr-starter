@@ -31,6 +31,16 @@ footer{border-top:1px solid #29283e;margin-top:30px;letter-spacing:.04em}
 <section class="card">@if(session('inquiry_status'))<p class="muted" style="color:#a8f0d1">{{ session('inquiry_status') }}</p>@endif @if($errors->any())<div class="muted" style="color:#ffc2d0">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif <span class="type">{{ ['restaurant'=>'რესტორანი / კაფე','retail'=>'მაღაზია','hotel'=>'სასტუმრო','services'=>'სერვისები','beauty'=>'სილამაზე და მოვლა','events'=>'ღონისძიებები','other'=>'ბიზნესი'][$business->business_type] ?? 'ბიზნესი' }}</span><h1>{{ $business->name }}</h1>@if($business->tagline)<div class="tagline">{{ $business->tagline }}</div>@endif
 @if($business->description)<p class="muted" style="white-space:pre-line">{{ $business->description }}</p>@endif
 <div class="muted">@if($business->city || $business->address)📍 {{ $business->city }} {{ $business->address }}<br><a class="action secondary" data-track="directions" href="https://www.google.com/maps/search/?api=1&query={{ urlencode(trim(($business->city ?? '') . ' ' . ($business->address ?? ''))) }}" target="_blank" rel="noopener noreferrer">მარშრუტის ნახვა ↗</a>@endif</div>
+@auth
+<div style="margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+@if($isFavorite)
+<form method="POST" action="{{ route('business.public.favorite.destroy',$business->slug) }}">@csrf @method('DELETE')<button class="action secondary" type="submit">♥ რჩეულებიდან ამოშლა</button></form>
+@else
+<form method="POST" action="{{ route('business.public.favorite.store',$business->slug) }}">@csrf<button class="action secondary" type="submit">♡ რჩეულებში დამატება</button></form>
+@endif
+@if(session('favorite_status'))<span class="muted" role="status">{{ session('favorite_status') }}</span>@endif
+</div>
+@endauth
 <div class="actions">@if($business->phone)<a class="action" data-track="call" href="tel:{{ preg_replace('/[^0-9+]/','',$business->phone) }}">დარეკვა</a>@endif @if($business->email)<a class="action secondary" data-track="email" href="mailto:{{ $business->email }}">ელფოსტის გაგზავნა</a>@endif @if($business->website)<a class="action secondary" data-track="website" href="{{ $business->website }}" target="_blank" rel="noopener noreferrer">ვებგვერდი ↗</a>@endif</div></section>
 
 @if($smartPage)
