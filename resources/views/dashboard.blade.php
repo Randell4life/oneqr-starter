@@ -30,7 +30,7 @@ main>.muted{font-size:14px;max-width:700px}
 @if($teamMemberships->isNotEmpty())
 <h2 style="margin-top:42px">ჩემი გუნდები</h2><div class="cards">
 @foreach($teamMemberships as $membership)
-<section class="card"><span class="pill">{{ $membership->role === 'manager' ? 'მენეჯერი' : 'თანამშრომელი' }}</span><h2>{{ $membership->business->name }}</h2><p class="muted">{{ $membership->branch?->name ?? 'ყველა ფილიალი' }}</p><a class="button" href="{{ route('business.qr.index', $membership->business) }}">QR კოდების ნახვა →</a>@if($membership->role === 'manager')<a class="button" href="{{ route('business.analytics', $membership->business) }}">ანალიტიკა →</a>@endif</section>
+<section class="card"><span class="pill">{{ $membership->role === 'manager' ? 'მენეჯერი' : 'თანამშრომელი' }}</span><h2>{{ $membership->business->name }}</h2><p class="muted">{{ $membership->branch?->name ?? 'ყველა ფილიალი' }}</p><a class="button" href="{{ route('business.qr.index', $membership->business) }}">QR კოდების ნახვა →</a><a class="button" href="{{ route('business.inbox.index', $membership->business) }}">მომხმარებლების მოთხოვნები →</a>@if($membership->role === 'manager')<a class="button" href="{{ route('business.analytics', $membership->business) }}">ანალიტიკა →</a>@endif</section>
 @endforeach</div>
 @endif
 </main></body></html>
