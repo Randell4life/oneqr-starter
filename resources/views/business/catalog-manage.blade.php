@@ -21,7 +21,7 @@ input[type=checkbox]{accent-color:#9b72ff}
 .notice{background:#14271f!important}
 @media(max-width:780px){.columns{grid-template-columns:1fr!important}main{margin:20px auto!important}}
 </style>@include('partials.design-system')
-</head><body><main><a href="{{ route('dashboard') }}">← კაბინეტი</a> · <a href="{{ route('business.profile.edit',$business) }}">ბიზნესის გვერდი</a><h1>{{ $business->name }} — კატალოგი და მოთხოვნები</h1><p class="muted">დაამატე პროდუქტები ან სერვისები. მომხმარებელი საჯარო გვერდიდან გამოგიგზავნის შეკვეთის მოთხოვნას.</p>
+</head><body><main><a href="{{ route('dashboard') }}">← კაბინეტი</a> · <a href="{{ route('business.profile.edit',$business) }}">ბიზნესის გვერდი</a> · <a href="{{ route('business.inbox.index',$business) }}">მომხმარებლების ცენტრი</a><h1>{{ $business->name }} — კატალოგი და მოთხოვნები</h1><p class="muted">დაამატე პროდუქტები ან სერვისები. მომხმარებელი საჯარო გვერდიდან გამოგიგზავნის შეკვეთის მოთხოვნას.</p>
 @if(session('status') || session('order_status'))<div class="notice">{{ session('status') ?: session('order_status') }}</div>@endif
 @if($errors->any())<div class="notice" style="color:#ffc2d0;border-color:#8b435a">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
 <div class="columns"><section class="panel"><h2>ახალი ჩანაწერი</h2>@if($canManage)<form method="POST" enctype="multipart/form-data" action="{{ route('business.catalog.store',$business) }}">@csrf
