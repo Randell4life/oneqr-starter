@@ -16,6 +16,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\QrImageController;
 use App\Http\Controllers\QrRedirectController;
 use App\Http\Controllers\SmartPageInteractionController;
+use App\Http\Controllers\BusinessInquiryController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -60,6 +61,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/businesses/{business}/kitchen', [BusinessCartController::class, 'kitchen'])->name('business.kitchen');
     Route::patch('/businesses/{business}/orders/{order}/status', [BusinessCartController::class, 'updateStatus'])->whereNumber('order')->name('business.orders.update-status');
     Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');
+    Route::patch('/businesses/{business}/inquiries/{inquiry}', [BusinessInquiryController::class, 'updateStatus'])->whereNumber('inquiry')->name('business.inquiries.status');
     Route::post('/businesses/{business}/catalog', [BusinessCatalogController::class, 'store'])->name('business.catalog.store');
     Route::put('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'update'])->whereNumber('item')->name('business.catalog.update');
     Route::delete('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'destroy'])->whereNumber('item')->name('business.catalog.destroy');
@@ -111,6 +113,7 @@ Route::delete('/b/{slug}/cart/{item}', [BusinessCartController::class, 'remove']
 Route::post('/b/{slug}/checkout', [BusinessCartController::class, 'checkout'])->middleware('throttle:10,1')->name('business.cart.checkout');
 Route::post('/b/{slug}/catalog/{item}/order', [BusinessCatalogController::class, 'submitOrder'])->whereNumber('item')->middleware('throttle:10,1')->name('business.catalog.order');
 Route::post('/p/{slug}/interactions', [SmartPageInteractionController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:30,1')->name('business.public.interactions');
+Route::post('/p/{slug}/inquiries', [BusinessInquiryController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:5,1')->name('business.public.inquiries.store');
 Route::get('/p/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public');
 Route::get('/b/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public.legacy');
 Route::get('/q/{publicId}', QrRedirectController::class)->whereUuid('publicId')->name('qr.redirect');

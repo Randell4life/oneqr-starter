@@ -86,7 +86,7 @@ class SmartPageController extends Controller
             'is_published' => ['nullable', 'boolean'],
             'blocks' => ['required', 'array', 'min:1', 'max:30'],
             'blocks.*.id' => ['nullable', 'integer', Rule::exists('smart_page_blocks', 'id')->where('smart_page_id', $page->id)],
-            'blocks.*.type' => ['required', Rule::in(['heading', 'text', 'image', 'button', 'contact', 'catalog', 'hours'])],
+            'blocks.*.type' => ['required', Rule::in(['heading', 'text', 'image', 'button', 'contact', 'catalog', 'hours', 'inquiry'])],
             'blocks.*.title' => ['nullable', 'string', 'max:180'],
             'blocks.*.text' => ['nullable', 'string', 'max:5000'],
             'blocks.*.url' => ['nullable', 'url', 'max:2048', 'regex:/^https?:\/\//i'],

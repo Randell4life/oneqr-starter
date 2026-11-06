@@ -48,6 +48,11 @@ class Business extends Model
         return $this->hasMany(SmartPageInteraction::class);
     }
 
+    public function inquiries(): HasMany
+    {
+        return $this->hasMany(BusinessInquiry::class);
+    }
+
     public function branches(): HasMany
     {
         return $this->hasMany(BusinessBranch::class);
