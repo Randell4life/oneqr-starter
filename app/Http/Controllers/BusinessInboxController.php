@@ -19,7 +19,7 @@ class BusinessInboxController extends Controller
         $status = (string) $request->query('status', '');
         $allowedStatuses = ['new', 'contacted', 'processing', 'completed', 'cancelled'];
 
-        $inquiries = $business->inquiries()
+        $inquiries = $business->inquiries()->with('interactions.user')
             ->when($search !== '', fn ($query) => $query->where(function ($scope) use ($search): void {
                 $scope->where('customer_name', 'like', "%{$search}%")
                     ->orWhere('customer_phone', 'like', "%{$search}%")
@@ -32,7 +32,7 @@ class BusinessInboxController extends Controller
             ->withQueryString();
 
         $orderRequests = $business->orderRequests()
-            ->with('catalogItem')
+            ->with(['catalogItem', 'interactions.user'])
             ->when($search !== '', fn ($query) => $query->where(function ($scope) use ($search): void {
                 $scope->where('customer_name', 'like', "%{$search}%")
                     ->orWhere('customer_phone', 'like', "%{$search}%")
