@@ -42,6 +42,21 @@ class QrRedirectController extends Controller
             ]);
         });
 
+        if (strtolower((string) $qrCode->category) === 'table') {
+            $label = trim((string) ($qrCode->placement_label ?: $qrCode->name));
+            if ($label !== '') {
+                $request->session()->put('oneqr_table_context', [
+                    'business_id' => $qrCode->business_id,
+                    'label' => mb_substr($label, 0, 80),
+                ]);
+            }
+        } else {
+            $context = $request->session()->get('oneqr_table_context');
+            if (($context['business_id'] ?? null) === $qrCode->business_id) {
+                $request->session()->forget('oneqr_table_context');
+            }
+        }
+
         return redirect()->away($qrCode->destination_url);
     }
 }
