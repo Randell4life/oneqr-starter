@@ -14,6 +14,9 @@ class BusinessDirectoryController extends Controller
             'q' => ['nullable', 'string', 'max:120'],
             'category' => ['nullable', 'in:restaurant,retail,hotel,services,beauty,events,other'],
             'city' => ['nullable', 'string', 'max:100'],
+            'nearby' => ['nullable', 'in:1'],
+            'lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'sort' => ['nullable', 'in:recent,rated,name'],
         ]);
 
@@ -49,6 +52,18 @@ class BusinessDirectoryController extends Controller
             $query->where('city', $filters['city']);
         }
 
+        if (!empty($filters['nearby']) && isset($filters['lat'], $filters['lng'])) {
+            $latitude = (float) $filters['lat'];
+            $longitude = (float) $filters['lng'];
+            $distance = 25;
+            $query->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->whereRaw(
+                    '(6371 * acos(least(1, greatest(-1, cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))))) <= ?',
+                    [$latitude, $longitude, $latitude, $distance]
+                );
+        }
+
         match ($filters['sort'] ?? 'recent') {
             'rated' => $query->orderByDesc('approved_reviews_avg_rating')->orderByDesc('approved_reviews_count'),
             'name' => $query->orderBy('name'),
@@ -56,6 +71,35 @@ class BusinessDirectoryController extends Controller
         };
 
         $businesses = $query->paginate(12)->withQueryString();
+
+        $mapBusinesses = Business::query()
+            ->where('is_published', true)
+            ->where('status', 'active')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->when(!empty($filters['category']), fn ($q) => $q->where('business_type', $filters['category']))
+            ->when(!empty($filters['city']), fn ($q) => $q->where('city', $filters['city']))
+            ->when(!empty($filters['q']), function ($q) use ($filters): void {
+                $term = trim($filters['q']);
+                $q->where(function ($nested) use ($term): void {
+                    $nested->where('name', 'like', "%{$term}%")
+                        ->orWhere('tagline', 'like', "%{$term}%")
+                        ->orWhere('description', 'like', "%{$term}%")
+                        ->orWhere('city', 'like', "%{$term}%")
+                        ->orWhere('address', 'like', "%{$term}%");
+                });
+            })
+            ->when(!empty($filters['nearby']) && isset($filters['lat'], $filters['lng']), function ($q) use ($filters): void {
+                $latitude = (float) $filters['lat'];
+                $longitude = (float) $filters['lng'];
+                $q->whereRaw(
+                    '(6371 * acos(least(1, greatest(-1, cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))))) <= ?',
+                    [$latitude, $longitude, $latitude, 25]
+                );
+            })
+            ->select(['id', 'name', 'slug', 'business_type', 'city', 'address', 'latitude', 'longitude'])
+            ->limit(250)
+            ->get();
 
         $hasFilters = collect($filters)->contains(fn ($value) => filled($value));
         $popularBusinesses = collect();
@@ -99,6 +143,6 @@ class BusinessDirectoryController extends Controller
             'other' => 'სხვა ბიზნესი',
         ];
 
-        return view('business.directory', compact('businesses', 'cities', 'categoryLabels', 'categoryCounts', 'popularBusinesses', 'hasFilters', 'filters'));
+        return view('business.directory', compact('businesses', 'cities', 'categoryLabels', 'categoryCounts', 'popularBusinesses', 'mapBusinesses', 'hasFilters', 'filters'));
     }
 }
