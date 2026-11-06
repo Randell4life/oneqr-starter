@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>მომხმარებლების ცენტრი — {{ $business->name }} | oneQR</title>
+<style>
+:root{color-scheme:dark;--bg:#090812;--panel:#141222;--line:#302943;--text:#f6f3ff;--muted:#aaa3bd;--purple:#9b72ff;--green:#5ee0b0;--amber:#f1c878}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -20%,#55368b44,transparent 42%),var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}
+a{color:#cbb8ff;text-decoration:none}header{padding:18px max(20px,calc((100vw - 1180px)/2));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}.logo{font-weight:950;font-size:22px}.logo span{color:var(--purple)}
+main{max-width:1180px;margin:34px auto;padding:0 22px}.eyebrow{font-size:11px;letter-spacing:2px;color:#b8a2f4;font-weight:850}h1{font-size:clamp(28px,4vw,40px);letter-spacing:-1px;margin:8px 0}.muted{color:var(--muted);line-height:1.55}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.stat,.panel,.lead{background:linear-gradient(145deg,#191629,#11101b);border:1px solid var(--line);border-radius:16px}.stat{padding:17px}.stat strong{display:block;font-size:26px;margin-top:5px}
+.panel{padding:20px;margin:18px 0}.filters{display:grid;grid-template-columns:1fr 220px auto;gap:10px;align-items:end}.field{width:100%;min-height:43px;background:#0b0a14;color:white;border:1px solid #39324e;border-radius:9px;padding:10px 12px;font:inherit}.btn,button{display:inline-flex;justify-content:center;align-items:center;padding:10px 14px;border:1px solid #7252bd;border-radius:9px;background:linear-gradient(110deg,#5535a1,#7854c9);color:white;font:inherit;font-weight:750;cursor:pointer}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.section-title h2{margin:0;font-size:20px}.count{border-radius:99px;background:#30234c;padding:5px 10px;color:#ddceff;font-size:12px}
+.lead{padding:19px;margin:12px 0}.lead-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap}.lead h3{margin:0 0 7px;font-size:17px}.meta{color:var(--muted);font-size:12px;line-height:1.7}.message{margin:13px 0;padding:12px;background:#0c0a15;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}.details label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.details textarea{min-height:76px;resize:vertical}.details .wide{grid-column:1/-1}.badge{display:inline-block;border-radius:99px;padding:5px 9px;background:#392b59;color:#e0d2ff;font-size:11px;font-weight:800}.badge.green{background:#17392f;color:#92e8c7}.badge.amber{background:#3b3020;color:#f5d58e}.notice{padding:12px 15px;border:1px solid #347d5b;background:#14271f;color:#a8f0d1;border-radius:10px;margin:15px 0}.empty{padding:25px;border:1px dashed var(--line);border-radius:12px;text-align:center;color:var(--muted)}
+.pagination{margin:15px 0}.pagination nav{display:flex;gap:8px;flex-wrap:wrap}.pagination a,.pagination span{padding:7px 10px;border:1px solid var(--line);border-radius:8px}
+@media(max-width:720px){main{padding:0 14px;margin:24px auto}.stats{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.details{grid-template-columns:1fr}.details .wide{grid-column:auto}.lead{padding:14px}.panel{padding:15px}}
+</style>
+@include('partials.design-system')
+</head>
+<body>
+<header><a class="logo" href="{{ route('dashboard') }}">one<span>QR</span></a><nav><a href="{{ route('business.catalog.index',$business) }}">კატალოგი</a> · <a href="{{ route('business.orders.index',$business) }}">შეკვეთები</a> · <a href="{{ route('dashboard') }}">კაბინეტი</a></nav></header>
+<main>
+<div class="eyebrow">CUSTOMER RELATIONSHIP / INBOX</div>
+<h1>{{ $business->name }} — მომხმარებლების ცენტრი</h1>
+<p class="muted">ყველა მოთხოვნა ერთ სივრცეში. მართე სტატუსი, დაგეგმე შემდგომი კონტაქტი და შეინახე გუნდის შიდა შენიშვნები.</p>
+@if(session('status'))<div class="notice" role="status">{{ session('status') }}</div>@endif
+@if($errors->any())<div class="notice" style="border-color:#8b435a;background:#281523;color:#ffc0d0">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
+<div class="stats"><div class="stat"><span class="muted">ახალი მოთხოვნები</span><strong>{{ $newCount }}</strong></div><div class="stat"><span class="muted">შემდგომი კონტაქტი გასულია</span><strong>{{ $followUpsDue }}</strong></div><div class="stat"><span class="muted">ნაპოვნი ჩანაწერები</span><strong>{{ $inquiries->total()+$orderRequests->total() }}</strong></div></div>
+<section class="panel"><form class="filters" method="GET" action="{{ route('business.inbox.index',$business) }}"><div><label class="muted" for="q">ძებნა — სახელი, ტელეფონი, ელფოსტა ან ტექსტი</label><input class="field" id="q" name="q" value="{{ $search }}" placeholder="მაგ. +995..., ნინო, პროდუქტი"></div><div><label class="muted" for="status">სტატუსი</label><select class="field" id="status" name="status"><option value="">ყველა სტატუსი</option><option value="new" @selected($status==='new')>ახალი</option><option value="contacted" @selected($status==='contacted')>დაკავშირებულია</option><option value="processing" @selected($status==='processing')>მუშავდება</option><option value="completed" @selected($status==='completed')>დასრულებული</option><option value="cancelled" @selected($status==='cancelled')>გაუქმებული</option></select></div><button type="submit">ფილტრაცია</button></form></section>
+<section class="panel"><div class="section-title"><h2>პირდაპირი მოთხოვნები</h2><span class="count">{{ $inquiries->total() }}</span></div>
+@forelse($inquiries as $item)
+<article class="lead"><div class="lead-head"><div><h3>{{ $item->customer_name }} <span class="badge">{{ ['booking'=>'ჯავშანი','consultation'=>'კონსულტაცია','general'=>'ზოგადი კითხვა'][$item->inquiry_type] ?? $item->inquiry_type }}</span></h3><div class="meta">{{ $item->customer_phone }} · {{ $item->customer_email ?: 'ელფოსტა არ არის' }}<br>{{ $item->created_at->format('d.m.Y H:i') }} @if($item->preferred_date) · სასურველი თარიღი: {{ $item->preferred_date->format('d.m.Y') }} @endif</div></div><span class="badge {{ $item->status==='completed'?'green':($item->status==='new'?'amber':'') }}">{{ ['new'=>'ახალი','contacted'=>'დაკავშირებულია','completed'=>'დასრულებული','cancelled'=>'გაუქმებული'][$item->status] ?? $item->status }}</span></div>
+@if($item->message)<div class="message">{{ $item->message }}</div>@endif
+@if($canManage)<form method="POST" action="{{ route('business.inbox.update',[$business,'inquiry',$item->id]) }}">@csrf @method('PATCH')
+<div class="details"><div><label>სტატუსი</label><select class="field" name="status"><option value="new" @selected($item->status==='new')>ახალი</option><option value="contacted" @selected($item->status==='contacted')>დაკავშირებულია</option><option value="completed" @selected($item->status==='completed')>დასრულებული</option><option value="cancelled" @selected($item->status==='cancelled')>გაუქმებული</option></select></div><div><label>შემდგომი კონტაქტის დრო</label><input class="field" type="datetime-local" name="follow_up_at" value="{{ $item->follow_up_at?->format('Y-m-d\TH:i') }}"></div><div class="wide"><label>შიდა შენიშვნა — მხოლოდ ბიზნესის გუნდისთვის</label><textarea class="field" name="internal_notes" maxlength="5000" placeholder="მაგ. დავურეკე, ელოდება ფასის შეთავაზებას...">{{ $item->internal_notes }}</textarea></div></div><button type="submit">ჩანაწერის შენახვა</button></form>
+@endif
+@if($item->interactions->isNotEmpty())
+<div style="margin-top:15px"><strong>კომუნიკაციის ისტორია</strong>
+@foreach($item->interactions as $interaction)
+<div class="meta" style="padding:9px 0;border-top:1px solid var(--line)"><strong>{{ ['phone'=>'ზარი','email'=>'ელფოსტა','whatsapp'=>'WhatsApp','in_person'=>'პირადი შეხვედრა','note'=>'შენიშვნა'][$interaction->channel] ?? $interaction->channel }}</strong> · {{ $interaction->occurred_at->format('d.m.Y H:i') }} · {{ $interaction->user->name }}<br>{{ $interaction->summary }}</div>
+@endforeach
+</div>
+@endif
+@if($canManage)
+<form method="POST" action="{{ route('business.inbox.interactions.store',[$business,'inquiry',$item->id]) }}" style="margin-top:12px">@csrf
+<div class="details"><div><label>კონტაქტის არხი</label><select class="field" name="channel"><option value="phone">ტელეფონი</option><option value="email">ელფოსტა</option><option value="whatsapp">WhatsApp</option><option value="in_person">პირადი შეხვედრა</option><option value="note">შიდა ჩანაწერი</option></select></div><div><label>კონტაქტის დრო</label><input class="field" type="datetime-local" name="occurred_at" value="{{ now()->format('Y-m-d\\TH:i') }}" required></div><div class="wide"><label>შედეგი / მიმოწერის მოკლე შინაარსი</label><textarea class="field" name="summary" maxlength="3000" required placeholder="რა შეთანხმდით მომხმარებელთან?"></textarea></div></div><button type="submit">ისტორიაში დამატება</button></form>
+@endif
+@if(!$canManage && $item->follow_up_at)<p class="meta">შემდგომი კონტაქტი: {{ $item->follow_up_at->format('d.m.Y H:i') }}</p>@endif @if(!$canManage && $item->internal_notes)<p class="meta">შიდა შენიშვნა: {{ $item->internal_notes }}</p>@endif
+<div class="meta" style="margin-top:12px"><a href="tel:{{ preg_replace('/[^0-9+]/','',$item->customer_phone) }}">დარეკვა ↗</a> @if($item->customer_email) · <a href="mailto:{{ $item->customer_email }}">ელფოსტის გახსნა ↗</a>@endif</div></article>
+@empty<div class="empty">ამ ფილტრით პირდაპირი მოთხოვნები ვერ მოიძებნა.</div>@endforelse
+<div class="pagination">{{ $inquiries->links() }}</div></section>
+<section class="panel"><div class="section-title"><h2>პროდუქტისა და სერვისის მოთხოვნები</h2><span class="count">{{ $orderRequests->total() }}</span></div>
+@forelse($orderRequests as $item)
+<article class="lead"><div class="lead-head"><div><h3>{{ $item->customer_name }} <span class="badge">{{ $item->item_name }} × {{ $item->quantity }}</span></h3><div class="meta">{{ $item->customer_phone }} · {{ $item->customer_email ?: 'ელფოსტა არ არის' }}<br>{{ $item->created_at->format('d.m.Y H:i') }}</div></div><span class="badge {{ $item->status==='completed'?'green':($item->status==='new'?'amber':'') }}">{{ ['new'=>'ახალი','processing'=>'მუშავდება','completed'=>'დასრულებული','cancelled'=>'გაუქმებული'][$item->status] ?? $item->status }}</span></div>
+@if($item->message)<div class="message">{{ $item->message }}</div>@endif
+@if($canManage)<form method="POST" action="{{ route('business.inbox.update',[$business,'order-request',$item->id]) }}">@csrf @method('PATCH')
+<div class="details"><div><label>სტატუსი</label><select class="field" name="status"><option value="new" @selected($item->status==='new')>ახალი</option><option value="processing" @selected($item->status==='processing')>მუშავდება</option><option value="completed" @selected($item->status==='completed')>დასრულებული</option><option value="cancelled" @selected($item->status==='cancelled')>გაუქმებული</option></select></div><div><label>შემდგომი კონტაქტის დრო</label><input class="field" type="datetime-local" name="follow_up_at" value="{{ $item->follow_up_at?->format('Y-m-d\TH:i') }}"></div><div class="wide"><label>შიდა შენიშვნა — მხოლოდ ბიზნესის გუნდისთვის</label><textarea class="field" name="internal_notes" maxlength="5000" placeholder="მაგ. მომხმარებელს შევუთანხმდით მიწოდებაზე...">{{ $item->internal_notes }}</textarea></div></div><button type="submit">ჩანაწერის შენახვა</button></form>
+@endif
+@if($item->interactions->isNotEmpty())
+<div style="margin-top:15px"><strong>კომუნიკაციის ისტორია</strong>
+@foreach($item->interactions as $interaction)
+<div class="meta" style="padding:9px 0;border-top:1px solid var(--line)"><strong>{{ ['phone'=>'ზარი','email'=>'ელფოსტა','whatsapp'=>'WhatsApp','in_person'=>'პირადი შეხვედრა','note'=>'შენიშვნა'][$interaction->channel] ?? $interaction->channel }}</strong> · {{ $interaction->occurred_at->format('d.m.Y H:i') }} · {{ $interaction->user->name }}<br>{{ $interaction->summary }}</div>
+@endforeach
+</div>
+@endif
+@if($canManage)
+<form method="POST" action="{{ route('business.inbox.interactions.store',[$business,'order-request',$item->id]) }}" style="margin-top:12px">@csrf
+<div class="details"><div><label>კონტაქტის არხი</label><select class="field" name="channel"><option value="phone">ტელეფონი</option><option value="email">ელფოსტა</option><option value="whatsapp">WhatsApp</option><option value="in_person">პირადი შეხვედრა</option><option value="note">შიდა ჩანაწერი</option></select></div><div><label>კონტაქტის დრო</label><input class="field" type="datetime-local" name="occurred_at" value="{{ now()->format('Y-m-d\\TH:i') }}" required></div><div class="wide"><label>შედეგი / მიმოწერის მოკლე შინაარსი</label><textarea class="field" name="summary" maxlength="3000" required placeholder="რა შეთანხმდით მომხმარებელთან?"></textarea></div></div><button type="submit">ისტორიაში დამატება</button></form>
+@endif
+@if(!$canManage && $item->follow_up_at)<p class="meta">შემდგომი კონტაქტი: {{ $item->follow_up_at->format('d.m.Y H:i') }}</p>@endif @if(!$canManage && $item->internal_notes)<p class="meta">შიდა შენიშვნა: {{ $item->internal_notes }}</p>@endif
+<div class="meta" style="margin-top:12px"><a href="tel:{{ preg_replace('/[^0-9+]/','',$item->customer_phone) }}">დარეკვა ↗</a> @if($item->customer_email) · <a href="mailto:{{ $item->customer_email }}">ელფოსტის გახსნა ↗</a>@endif</div></article>
+@empty<div class="empty">ამ ფილტრით პროდუქტის/სერვისის მოთხოვნები ვერ მოიძებნა.</div>@endforelse
+<div class="pagination">{{ $orderRequests->links() }}</div></section>
+</main></body></html>
