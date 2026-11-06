@@ -40,6 +40,10 @@ class BusinessInquiryTest extends TestCase
             ->assertRedirect(route('business.public', $business->slug))
             ->assertSessionHas('inquiry_status');
 
+        $notification = $business->owner->notifications()->latest()->first();
+        $this->assertNotNull($notification);
+        $this->assertSame('inquiry.created', $notification->data['event']);
+
         $this->assertDatabaseHas('business_inquiries', [
             'business_id' => $business->id,
             'customer_phone' => '+995555123456',
