@@ -45,6 +45,36 @@ class BusinessQrController extends Controller
         ]);
     }
 
+    public function tables(Request $request, Business $business, BusinessAccess $access): View
+    {
+        $access->assertCanViewQr($request->user(), $business);
+
+        $tables = $access->visibleQrCodes($request->user(), $business)
+            ->where('category', 'table')
+            ->with('branch')
+            ->orderBy('placement_label')
+            ->orderBy('name')
+            ->get();
+
+        $tableLabels = $tables->map(fn (QrCode $table): string => $table->placement_label ?: $table->name)
+            ->unique()
+            ->values();
+
+        $activeOrders = $business->orders()
+            ->whereIn('status', ['new', 'confirmed', 'processing'])
+            ->whereIn('table_label', $tableLabels)
+            ->latest()
+            ->get()
+            ->groupBy('table_label');
+
+        return view('business.tables', [
+            'business' => $business,
+            'tables' => $tables,
+            'activeOrders' => $activeOrders,
+            'canManageQr' => $access->canManageQr($request->user(), $business),
+        ]);
+    }
+
     public function store(Request $request, Business $business, BusinessAccess $access, PlanAccess $plans): RedirectResponse
     {
         $access->assertCanManageQr($request->user(), $business);
