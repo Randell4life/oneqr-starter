@@ -16,7 +16,7 @@
 @else<div class="grid">@foreach($tables as $table)
 @php($label = $table->placement_label ?: $table->name)
 @php($orders = $activeOrders->get($label, collect()))
-<article class="table-card {{ $orders->isNotEmpty() ? 'busy' : '' }}"><div class="card-head"><div class="table-number">{{ $label }}</div><span class="status {{ $orders->isNotEmpty() ? 'busy' : '' }}">{{ $orders->isNotEmpty() ? '● დაკავებულია' : '● თავისუფალია' }}</span></div>
+<article class="table-card {{ $orders->isNotEmpty() ? 'busy' : '' }}"><div class="card-head"><div class="table-number">{{ $label }}</div><span class="status {{ $orders->isNotEmpty() ? 'busy' : '' }}">{{ $orders->isNotEmpty() ? 'შეკვეთა აქტიურია' : '● თავისუფალია' }}</span></div>
 <div class="meta">{{ $table->branch?->name ?? 'ძირითადი ფილიალი' }} <span style="padding:0 6px">·</span> {{ number_format($table->scan_count) }} სკანირება</div>
 @if($orders->isNotEmpty())@foreach($orders as $order)<div class="order-line"><div><strong>#{{ $order->order_number }}</strong><br><span>{{ $order->status }}</span></div><strong>{{ number_format((float)$order->total,2) }} {{ $order->currency }}</strong></div>@endforeach
 @else<div class="order-line"><span>ამჟამად შეკვეთა არ არის</span><span>—</span></div>@endif
