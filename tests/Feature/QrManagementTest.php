@@ -43,6 +43,42 @@ class QrManagementTest extends TestCase
             ->assertHeader('Content-Type', 'image/svg+xml; charset=UTF-8');
     }
 
+
+    public function test_business_owner_can_create_a_table_order_qr_from_the_qr_form(): void
+    {
+        $owner = User::factory()->create();
+        $business = Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Table Cafe',
+            'slug' => 'table-cafe',
+            'business_type' => 'cafe',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($owner)
+            ->get(route('business.qr.index', $business))
+            ->assertOk()
+            ->assertSee('მაგიდის შეკვეთა');
+
+        $this->actingAs($owner)
+            ->post(route('business.qr.store', $business), [
+                'name' => 'მაგიდა 07',
+                'destination_url' => route('business.public', $business->slug),
+                'category' => 'table',
+                'placement_label' => 'მაგიდა 07',
+            ])
+            ->assertRedirect(route('business.qr.index', $business));
+
+        $qr = $business->qrCodes()->firstOrFail();
+        $this->assertSame('table', $qr->category);
+        $this->assertSame('მაგიდა 07', $qr->placement_label);
+
+        $this->get(route('qr.redirect', $qr->public_id))
+            ->assertRedirect(route('business.public', $business->slug));
+
+        $this->assertSame('მაგიდა 07', session('oneqr_table_context.label'));
+    }
+
     public function test_business_owner_can_view_device_and_referrer_analytics(): void
     {
         $owner = User::factory()->create();

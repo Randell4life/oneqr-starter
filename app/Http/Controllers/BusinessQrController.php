@@ -54,7 +54,7 @@ class BusinessQrController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'destination_url' => ['required', 'url', 'max:2048', 'regex:/^https?:\/\//i'],
-            'category' => ['required', Rule::in(['general', 'menu', 'product', 'contact', 'booking', 'review', 'campaign'])],
+            'category' => ['required', Rule::in(['general', 'menu', 'product', 'contact', 'booking', 'review', 'campaign', 'table'])],
             'placement_label' => ['nullable', 'string', 'max:100'],
             'campaign_name' => ['nullable', 'string', 'max:120'],
             'branch_id' => ['nullable', 'integer', Rule::exists('business_branches', 'id')->where('business_id', $business->id)],
