@@ -19,6 +19,7 @@ use App\Http\Controllers\SmartPageInteractionController;
 use App\Http\Controllers\BusinessInquiryController;
 use App\Http\Controllers\BusinessReviewController;
 use App\Http\Controllers\BusinessFavoriteController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -35,6 +36,9 @@ Route::post('/payments/tbc/callback', [BusinessSubscriptionPaymentController::cl
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/favorites', [BusinessFavoriteController::class, 'index'])->name('favorites.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::post('/p/{slug}/favorite', [BusinessFavoriteController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:20,1')->name('business.public.favorite.store');
     Route::delete('/p/{slug}/favorite', [BusinessFavoriteController::class, 'destroy'])->where('slug', '[A-Za-z0-9-]+')->name('business.public.favorite.destroy');
 
