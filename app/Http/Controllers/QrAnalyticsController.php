@@ -63,8 +63,10 @@ class QrAnalyticsController extends Controller
             ->selectRaw('interaction_type, COUNT(*) as total')
             ->groupBy('interaction_type')->orderByDesc('total')->get();
         $interactionTotal = (int) $interactions->sum('total');
+        $reviewStats = $business->reviews()->where('status', 'approved')->selectRaw('COUNT(*) as total, AVG(rating) as average')->first();
+        $pendingReviews = $business->reviews()->where('status', 'pending')->count();
 
-        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers', 'campaigns', 'placements', 'period', 'interactions', 'interactionTotal'));
+        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers', 'campaigns', 'placements', 'period', 'interactions', 'interactionTotal', 'reviewStats', 'pendingReviews'));
     }
 
     public function export(Request $request, Business $business, BusinessAccess $access): StreamedResponse
