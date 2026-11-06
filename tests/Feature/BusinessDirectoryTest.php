@@ -202,9 +202,9 @@ class BusinessDirectoryTest extends TestCase
 
         $this->get(route('business.directory'))
             ->assertOk()
-            ->assertSee('Mapped Cafe')
-            ->assertDontSee('Unmapped Cafe')
-            ->assertDontSee('Hidden Mapped Cafe');
+            ->assertSee('"slug":"mapped-cafe"', false)
+            ->assertDontSee('"slug":"unmapped-cafe"', false)
+            ->assertDontSee('"slug":"hidden-mapped-cafe"', false);
     }
 
     public function test_nearby_directory_search_filters_businesses_using_coordinates(): void
