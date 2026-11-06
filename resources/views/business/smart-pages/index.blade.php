@@ -1,5 +1,23 @@
 <!doctype html>
-<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Smart Pages — oneQR</title>@include('partials.design-system')</head>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Smart Pages — oneQR</title>@include('partials.design-system')<style>
+body{background:radial-gradient(ellipse at 82% -18%,#54368b55,transparent 42%),#080711!important}
+header.nav{position:sticky;top:0;z-index:20}
+.page-heading{padding:26px 28px;border:1px solid #302a49;border-radius:22px;background:linear-gradient(115deg,#171329,#100f1b 68%,#1d1530);box-shadow:0 18px 50px #0004}
+.page-heading h1{font-size:clamp(32px,5vw,48px);margin:0 0 9px;letter-spacing:-.055em}
+.page-heading .muted{max-width:690px}
+.page-heading>.btn{white-space:nowrap}
+.surface{box-shadow:0 14px 38px #0003!important}
+.surface h2{font-size:19px;margin-top:0}
+.surface form{gap:14px!important}
+.surface input:not([type=checkbox]),.surface select{min-height:46px}
+.cards{align-items:stretch}
+.cards>.surface{position:relative;display:flex;flex-direction:column;min-height:210px;transition:transform .2s,border-color .2s}
+.cards>.surface:before{content:"";height:3px;position:absolute;inset:0 18px auto;background:linear-gradient(90deg,#7547e8,#b69cff,transparent)}
+.cards>.surface:hover{transform:translateY(-3px);border-color:#7053a4!important}
+.cards>.surface h2{font-size:22px;margin:18px 0 5px}
+.cards>.surface .btn{align-self:flex-start;margin-top:auto}
+@media(max-width:600px){.page-heading{padding:20px 17px}.page-heading>.btn{width:100%;text-align:center}.cards{grid-template-columns:1fr!important}}
+</style></head>
 <body><header class="nav"><a class="logo" href="{{ route('dashboard') }}">one<span>QR</span></a><a href="{{ route('business.profile.edit',$business) }}">← ბიზნესის პროფილი</a></header>
 <main><div class="page-heading"><div><p class="eyebrow">SMART PAGE STUDIO</p><h1>ჭკვიანი გვერდები</h1><p class="muted">შექმენი გვერდის ვერსიები და განსაზღვრე, როდის გამოჩნდეს თითოეული QR კოდის დასკანერებისას.</p></div><a class="btn" href="{{ route('business.public',$business->slug) }}" target="_blank">საჯარო გვერდი ↗</a></div>
 @if(session('status'))<div class="notice">{{ session('status') }}</div>@endif

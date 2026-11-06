@@ -1,6 +1,32 @@
 <!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ $page->name }} — Smart Page</title>@include('partials.design-system')
-<style>.editor-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px}.block-editor{padding:18px;border:1px solid var(--oq-line);border-radius:14px;margin:12px 0;background:#0e0d18}.block-editor label{display:block;margin:9px 0 5px}.block-editor input,.block-editor textarea,.block-editor select{width:100%}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.preview-frame{position:sticky;top:18px}.preview-screen{background:#090812;border:1px solid var(--oq-line);border-radius:22px;padding:16px;min-height:280px;overflow:hidden}.preview-block{background:#171626;border:1px solid #29243d;border-radius:13px;padding:13px;margin:10px 0;overflow-wrap:anywhere}.preview-block img{width:100%;max-height:180px;object-fit:cover;border-radius:9px}.preview-block p{white-space:pre-line;color:#aaa3bd}.preview-actions{display:flex;gap:8px;flex-wrap:wrap}.preview-actions span{background:#8057df;padding:8px 11px;border-radius:8px;font-size:12px}.block-editor input[type=file]{width:100%;font-size:12px}.block-upload-preview{display:block;max-width:140px;max-height:90px;object-fit:cover;border-radius:8px;margin-top:8px}@media(max-width:850px){.editor-grid{grid-template-columns:1fr}}</style>
+<style>.editor-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px}.block-editor{padding:18px;border:1px solid var(--oq-line);border-radius:14px;margin:12px 0;background:#0e0d18}.block-editor label{display:block;margin:9px 0 5px}.block-editor input,.block-editor textarea,.block-editor select{width:100%}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.preview-frame{position:sticky;top:18px}.preview-screen{background:#090812;border:1px solid var(--oq-line);border-radius:22px;padding:16px;min-height:280px;overflow:hidden}.preview-block{background:#171626;border:1px solid #29243d;border-radius:13px;padding:13px;margin:10px 0;overflow-wrap:anywhere}.preview-block img{width:100%;max-height:180px;object-fit:cover;border-radius:9px}.preview-block p{white-space:pre-line;color:#aaa3bd}.preview-actions{display:flex;gap:8px;flex-wrap:wrap}.preview-actions span{background:#8057df;padding:8px 11px;border-radius:8px;font-size:12px}.block-editor input[type=file]{width:100%;font-size:12px}.block-upload-preview{display:block;max-width:140px;max-height:90px;object-fit:cover;border-radius:8px;margin-top:8px}@media(max-width:850px){.editor-grid{grid-template-columns:1fr}}</style><style>
+body{background:radial-gradient(ellipse at 82% -18%,#54368b44,transparent 42%),#080711!important}
+header.nav{position:sticky;top:0;z-index:20}
+.page-heading{padding:24px 28px;border:1px solid #302a49;border-radius:22px;background:linear-gradient(115deg,#171329,#100f1b 68%,#1d1530);box-shadow:0 18px 50px #0004}
+.page-heading h1{font-size:clamp(30px,4.5vw,44px);margin:0 0 8px}
+.editor-grid{grid-template-columns:minmax(0,1fr) minmax(300px,370px);align-items:start;gap:22px}
+.editor-grid>form{min-width:0}
+.editor-grid>form>.surface{box-shadow:0 14px 38px #0003!important}
+.block-editor{position:relative;background:linear-gradient(145deg,#171626,#10101a)!important;border-color:#35304d!important;border-radius:16px!important;padding:20px!important;box-shadow:0 8px 24px #0002}
+.block-editor+.block-editor{margin-top:15px}
+.block-editor>.section-heading{padding-bottom:12px;border-bottom:1px solid #302c43}
+.block-editor>.section-heading strong{font-size:14px;color:#e7ddff}
+.block-editor label{font-size:12px}
+.block-editor input:not([type=checkbox]),.block-editor textarea,.block-editor select{min-height:42px}
+.block-editor textarea{resize:vertical}
+.preview-frame{top:92px}
+.preview-screen{background:linear-gradient(160deg,#0b0a14,#151225)!important;box-shadow:inset 0 0 0 1px #ffffff08}
+.preview-block{background:linear-gradient(145deg,#211c34,#151321)!important;border-color:#40365d!important;box-shadow:0 6px 18px #0003}
+.preview-actions span{background:linear-gradient(100deg,#7144e8,#9b72ff)!important}
+.editor-grid aside>.surface{box-shadow:0 14px 38px #0003!important}
+.editor-grid aside h2{font-size:18px}
+.editor-grid aside input:not([type=checkbox]){min-height:42px}
+.editor-grid aside .two{gap:9px}
+.editor-grid aside form>button{width:100%}
+@media(max-width:850px){.editor-grid{grid-template-columns:1fr}.preview-frame{position:static;top:auto}.page-heading{padding:20px}}
+@media(max-width:560px){.block-editor{padding:14px!important}.block-editor .section-heading{align-items:flex-start}.block-editor .section-heading .btn{padding:7px 9px!important}.editor-grid aside>.surface{padding:16px!important}}
+</style>
 </head><body><header class="nav"><a class="logo" href="{{ route('dashboard') }}">one<span>QR</span></a><a href="{{ route('business.smart-pages.index',$business) }}">← გვერდების სია</a></header>
 <main><div class="page-heading"><div><p class="eyebrow">PAGE BUILDER</p><h1>{{ $page->name }}</h1><p class="muted">ბლოკების დამატება, დამალვა და თანმიმდევრობის მართვა.</p></div><a class="btn" href="{{ route('business.public',$business->slug) }}" target="_blank">Preview ↗</a></div>
 @if(session('status'))<div class="notice">{{ session('status') }}</div>@endif @if($errors->any())<div class="danger" style="padding:14px;border-radius:12px">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif
