@@ -1,49 +1,22 @@
 <!doctype html>
-<html lang="ka">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="20">
-<title>სამზარეულო — {{ $business->name }}</title>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="20"><title>სამზარეულო — {{ $business->name }}</title>
 <style>
-:root{color-scheme:dark;--bg:#090812;--panel:#141122;--line:#2a2540;--muted:#aaa3bd;--text:#f8f6ff;--accent:#9b72ff;--green:#39c98a;--amber:#f3b84b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Inter,system-ui,sans-serif}
-main{max-width:1500px;margin:24px auto;padding:0 18px}a{color:#cbbaff;text-decoration:none}
-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.muted{color:var(--muted)}.stats{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
-.stat,.ticket{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
-.stat strong{font-size:22px;display:block}.lanes{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:14px;align-items:start}
-.lane h2{font-size:17px}.ticket{margin:10px 0}.ticket-top{display:flex;justify-content:space-between;gap:10px;align-items:start}
-.table{color:#cbbaff;font-weight:800;font-size:18px}.items{border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
-.item{display:flex;justify-content:space-between;gap:10px;padding:6px 0}.item strong{font-size:15px}
-.note{background:#0d0b17;border-radius:8px;padding:9px;margin-top:8px;color:var(--muted)}
-button{border:0;border-radius:9px;padding:11px 13px;font-weight:700;cursor:pointer;background:var(--accent);color:white}
-button.secondary{background:#302a43}button.cancel{background:#633347}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.empty{border:1px dashed var(--line);border-radius:12px;padding:20px;color:var(--muted)}
-@media(max-width:900px){.lanes{grid-template-columns:1fr}}@media(min-width:901px) and (max-width:1150px){.lanes{grid-template-columns:repeat(2,minmax(250px,1fr))}}
-</style>
-</head>
-<body><main>
-<header><div><a href="{{ route('business.orders.index',$business) }}">← შეკვეთები</a><h1 style="margin:12px 0 4px">სამზარეულოს ეკრანი</h1><p class="muted" style="margin:0">{{ $business->name }} · განახლება ყოველ 20 წამში</p></div>
-<form method="GET"><button class="secondary" type="submit">ახლავე განახლება</button></form></header>
-<section class="stats"><div class="stat"><span class="muted">ახალი შეკვეთები</span><strong>{{ $newCount }}</strong></div><div class="stat"><span class="muted">მზადდება</span><strong>{{ $preparingCount }}</strong></div><div class="stat"><span class="muted">აქტიური ჯამი</span><strong>{{ $orders->count() }}</strong></div></section>
+:root{color-scheme:dark;--bg:#080711;--card:#151222;--line:#29243c;--text:#f7f5ff;--muted:#9690aa;--purple:#9b72ff;--green:#43d6a0;--amber:#ffbf69;--red:#ff6f91}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% -15%,#302052 0,transparent 42%),var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}a{color:#cbb7ff;text-decoration:none}main{max-width:1600px;margin:auto;padding:24px 24px 50px}
+.topbar,.heading,.stats,.ticket-head,.actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.topbar{padding-bottom:18px;border-bottom:1px solid var(--line)}.brand{font-size:13px;font-weight:900;letter-spacing:.16em;color:#d9ccff}.nav{display:flex;gap:9px;flex-wrap:wrap}.nav a,.btn{border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:#171326;color:#d8cff0;font-weight:700}.nav a.active,.btn.primary,button{background:linear-gradient(120deg,#7547e8,var(--purple));border-color:transparent;color:white}
+.heading{margin:25px 0 18px}.eyebrow{color:var(--purple);font-weight:800;font-size:11px;letter-spacing:.18em}.heading h1{font-size:clamp(26px,3vw,36px);margin:7px 0}.muted{color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 24px}.stat{background:linear-gradient(145deg,#171426,#100e1b);border:1px solid var(--line);border-radius:14px;padding:15px 18px}.stat span{font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:25px;margin-top:6px}
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}.lane{background:#100e1b;border:1px solid var(--line);border-radius:16px;padding:14px;min-height:250px}.lane-title{display:flex;justify-content:space-between;align-items:center;padding:3px 3px 13px;border-bottom:1px solid var(--line);font-weight:850}.count{border-radius:20px;padding:4px 9px;background:#29213d;color:#d8c6ff;font-size:11px}.ticket{background:linear-gradient(145deg,#1a1729,#131120);border:1px solid #302a43;border-radius:13px;padding:15px;margin:12px 0}.ticket-head{align-items:start}.ticket-id{font-weight:850;font-size:15px}.time{font-size:12px;color:var(--muted);margin-top:5px}.table{display:inline-block;background:#2a2040;color:#d9c9ff;border:1px solid #55417e;border-radius:8px;padding:6px 9px;font-weight:850;font-size:12px}.items{border-top:1px solid var(--line);margin-top:12px;padding-top:9px}.item{display:flex;justify-content:space-between;gap:10px;padding:7px 0}.item strong{font-size:13px}.item span{color:#d8c6ff;font-weight:800}.note{background:#0d0b17;border-radius:8px;padding:9px;margin-top:8px;color:var(--muted);font-size:12px}.actions{justify-content:flex-start;margin-top:14px}button{padding:9px 12px;border:0;border-radius:8px;cursor:pointer;font-weight:800}.cancel{background:#54283c;color:#ffc0d1}.secondary{background:#302a43;color:white}.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:1000px){.lanes{grid-template-columns:1fr}}@media(max-width:600px){main{padding:16px 12px 35px}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:span 2}.lane{padding:11px}}
+</style></head><body><main>
+<div class="topbar"><div class="brand">oneQR <span style="color:var(--purple)">/ KITCHEN</span></div><nav class="nav"><a href="{{ route('business.orders.index',$business) }}">შეკვეთები</a><a href="{{ route('business.tables.index',$business) }}">მაგიდები</a><a class="active" href="{{ route('business.kitchen',$business) }}">სამზარეულო</a></nav></div>
+<div class="heading"><div><div class="eyebrow">LIVE ORDER MONITOR</div><h1>სამზარეულოს ეკრანი</h1><p class="muted">{{ $business->name }} · ავტომატური განახლება ყოველ 20 წამში</p></div><form method="GET"><button class="secondary" type="submit">↻ განახლება</button></form></div>
+<section class="stats"><div class="stat"><span>ახალი შეკვეთები</span><strong>{{ $newCount }}</strong></div><div class="stat"><span>მზადდება</span><strong>{{ $preparingCount }}</strong></div><div class="stat"><span>აქტიური შეკვეთები</span><strong>{{ $orders->count() }}</strong></div></section>
 <div class="lanes">
-<section class="lane"><h2>ახალი შეკვეთები</h2>
-@php($newOrders = $orders->where('status','new'))
-@forelse($newOrders as $order)
-<article class="ticket"><div class="ticket-top"><div><strong>#{{ $order->order_number }}</strong><p class="muted">{{ $order->created_at->format('H:i') }} · {{ $order->customer_name }}</p></div>@if($order->table_label)<span class="table">{{ $order->table_label }}</span>@endif</div>
-<div class="items">@foreach($order->items as $item)<div class="item"><strong>{{ $item->item_name }}</strong><span>× {{ $item->quantity }}</span></div>@endforeach</div>
-@if($order->notes)<div class="note">{{ $order->notes }}</div>@endif
-<div class="actions"><form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="confirmed"><button>მიღება</button></form><form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="cancelled"><button class="cancel">გაუქმება</button></form></div></article>
-@empty<div class="empty">ახალი შეკვეთები არ არის.</div>@endforelse
+<section class="lane"><div class="lane-title">ახალი შეკვეთები <span class="count">{{ $newOrders = $orders->where('status','new')->count() }}</span></div>
+@forelse($orders->where('status','new') as $order)<article class="ticket"><div class="ticket-head"><div><div class="ticket-id">#{{ $order->order_number }}</div><div class="time">{{ $order->created_at->format('H:i') }} · {{ $order->customer_name }}</div></div>@if($order->table_label)<span class="table">{{ $order->table_label }}</span>@endif</div><div class="items">@foreach($order->items as $item)<div class="item"><strong>{{ $item->item_name }}</strong><span>× {{ $item->quantity }}</span></div>@endforeach</div>@if($order->notes)<div class="note">{{ $order->notes }}</div>@endif<div class="actions"><form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="confirmed"><button>შეკვეთის მიღება</button></form><form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="cancelled"><button class="cancel">გაუქმება</button></form></div></article>@empty<div class="empty">ახალი შეკვეთები არ არის</div>@endforelse
 </section>
-<section class="lane"><h2>მზადდება</h2>
-@php($preparingOrders = $orders->whereIn('status',['confirmed','processing']))
-@forelse($preparingOrders as $order)
-<article class="ticket"><div class="ticket-top"><div><strong>#{{ $order->order_number }}</strong><p class="muted">{{ $order->created_at->format('H:i') }} · {{ $order->customer_name }}</p></div>@if($order->table_label)<span class="table">{{ $order->table_label }}</span>@endif</div>
-<div class="items">@foreach($order->items as $item)<div class="item"><strong>{{ $item->item_name }}</strong><span>× {{ $item->quantity }}</span></div>@endforeach</div>
-@if($order->notes)<div class="note">{{ $order->notes }}</div>@endif
-<div class="actions">@if($order->status === 'confirmed')<form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="processing"><button>მომზადების დაწყება</button></form>@endif<form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="completed"><button>მზადაა</button></form></div></article>
-@empty<div class="empty">მომზადების პროცესში შეკვეთები არ არის.</div>@endforelse
+<section class="lane"><div class="lane-title">მზადდება <span class="count">{{ $preparingOrders = $orders->whereIn('status',['confirmed','processing'])->count() }}</span></div>
+@forelse($orders->whereIn('status',['confirmed','processing']) as $order)<article class="ticket"><div class="ticket-head"><div><div class="ticket-id">#{{ $order->order_number }}</div><div class="time">{{ $order->created_at->format('H:i') }} · {{ $order->customer_name }}</div></div>@if($order->table_label)<span class="table">{{ $order->table_label }}</span>@endif</div><div class="items">@foreach($order->items as $item)<div class="item"><strong>{{ $item->item_name }}</strong><span>× {{ $item->quantity }}</span></div>@endforeach</div>@if($order->notes)<div class="note">{{ $order->notes }}</div>@endif<div class="actions">@if($order->status==='confirmed')<form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="processing"><button>მომზადების დაწყება</button></form>@endif<form method="POST" action="{{ route('business.orders.update-status',[$business,$order->id]) }}">@csrf @method('PATCH')<input type="hidden" name="status" value="completed"><button>მზადაა ✓</button></form></div></article>@empty<div class="empty">მომზადების პროცესში შეკვეთები არ არის</div>@endforelse
 </section>
-<section class="lane"><h2>დასრულებული</h2><div class="empty">დასრულებული შეკვეთები ჩანს შეკვეთების სრულ სიაში.</div><p><a href="{{ route('business.orders.index',$business) }}">ყველა შეკვეთის ნახვა →</a></p></section>
+<section class="lane"><div class="lane-title">დასრულებული <span class="count">✓</span></div><div class="empty">დასრულებული შეკვეთები ხელმისაწვდომია შეკვეთების სრულ სიაში.</div><p style="padding:0 8px"><a href="{{ route('business.orders.index',$business) }}">ყველა შეკვეთის ნახვა →</a></p></section>
 </div></main></body></html>
