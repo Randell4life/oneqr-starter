@@ -34,4 +34,17 @@ class QrImageController extends Controller
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
+    public function printCard(Request $request, Business $business, int $qrCode, BusinessAccess $access): \Illuminate\View\View
+    {
+        $record = $business->qrCodes()->with('branch')->findOrFail($qrCode);
+        $access->assertCanAccessQr($request->user(), $business, $record);
+
+        return view('qr.print', [
+            'business' => $business,
+            'qr' => $record,
+            'targetUrl' => route('qr.redirect', $record->public_id),
+            'svgUrl' => route('business.qr.image', [$business, $record->id]),
+        ]);
+    }
+
 }
