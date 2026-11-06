@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/businesses/{business}/inventory', [BusinessInventoryController::class, 'index'])->name('business.inventory.index');
     Route::post('/businesses/{business}/inventory/{item}/adjust', [BusinessInventoryController::class, 'adjust'])->whereNumber('item')->middleware('throttle:30,1')->name('business.inventory.adjust');
     Route::get('/businesses/{business}/orders', [BusinessCartController::class, 'orders'])->name('business.orders.index');
+    Route::get('/businesses/{business}/kitchen', [BusinessCartController::class, 'kitchen'])->name('business.kitchen');
     Route::patch('/businesses/{business}/orders/{order}/status', [BusinessCartController::class, 'updateStatus'])->whereNumber('order')->name('business.orders.update-status');
     Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');
     Route::post('/businesses/{business}/catalog', [BusinessCatalogController::class, 'store'])->name('business.catalog.store');
