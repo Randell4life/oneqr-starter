@@ -53,6 +53,11 @@ class Business extends Model
         return $this->hasMany(BusinessInquiry::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(BusinessReview::class);
+    }
+
     public function branches(): HasMany
     {
         return $this->hasMany(BusinessBranch::class);
