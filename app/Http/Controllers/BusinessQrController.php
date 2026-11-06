@@ -17,12 +17,31 @@ class BusinessQrController extends Controller
     {
         $access->assertCanViewQr($request->user(), $business);
 
+        $membership = $access->membership($request->user(), $business);
+        $qrQuery = $access->visibleQrCodes($request->user(), $business)->with('branch');
+
+        if ($request->filled('campaign')) {
+            $qrQuery->where('campaign_name', $request->string('campaign')->toString());
+        }
+        if ($request->filled('placement')) {
+            $qrQuery->where('placement_label', 'like', '%'.$request->string('placement')->toString().'%');
+        }
+        if ($request->filled('branch_id')) {
+            $qrQuery->where('branch_id', $request->integer('branch_id'));
+        }
+
+        $branchesQuery = $business->branches()->where('is_active', true)->orderBy('name');
+        if (! $access->isOwner($request->user(), $business) && $membership?->branch_id) {
+            $branchesQuery->whereKey($membership->branch_id);
+        }
+
         return view('qr.index', [
             'business' => $business,
-            'qrCodes' => $access->visibleQrCodes($request->user(), $business)->with('branch')->latest()->paginate(12),
-            'branches' => $business->branches()->where('is_active', true)->orderBy('name')->get(),
+            'qrCodes' => $qrQuery->latest()->paginate(12)->withQueryString(),
+            'branches' => $branchesQuery->get(),
             'canManageQr' => $access->canManageQr($request->user(), $business),
-            'membership' => $access->membership($request->user(), $business),
+            'membership' => $membership,
+            'filters' => $request->only(['campaign', 'placement', 'branch_id']),
         ]);
     }
 
