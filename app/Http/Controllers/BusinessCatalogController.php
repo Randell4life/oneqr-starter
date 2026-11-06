@@ -25,6 +25,7 @@ class BusinessCatalogController extends Controller
             'items' => $business->catalogItems()->orderBy('sort_order')->orderBy('name')->paginate(20),
             'orders' => $business->orderRequests()->with('catalogItem')->latest()->paginate(20, ['*'], 'orders_page'),
             'inquiries' => $business->inquiries()->latest()->paginate(20, ['*'], 'inquiries_page'),
+            'reviews' => $business->reviews()->latest()->paginate(20, ['*'], 'reviews_page'),
             'canManage' => $access->canManageQr($request->user(), $business),
         ]);
     }

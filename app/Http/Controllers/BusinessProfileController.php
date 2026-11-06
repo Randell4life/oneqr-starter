@@ -68,8 +68,10 @@ class BusinessProfileController extends Controller
             ->firstOrFail();
 
         $smartPage = $resolver->resolve($business);
+        $reviews = $business->reviews()->where('status', 'approved')->latest()->limit(12)->get();
+        $reviewStats = $business->reviews()->where('status', 'approved')->selectRaw('COUNT(*) as total, AVG(rating) as average')->first();
 
-        return view('business.public-profile', compact('business', 'smartPage'));
+        return view('business.public-profile', compact('business', 'smartPage', 'reviews', 'reviewStats'));
     }
 
     private function authorizeOwner(Request $request, Business $business): void

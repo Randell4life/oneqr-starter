@@ -72,6 +72,34 @@ footer{border-top:1px solid #29283e;margin-top:30px;letter-spacing:.04em}
 </form>@else<p class="muted">პროდუქტი დროებით არ არის მარაგში.</p>@endif</article>
 @empty<p class="muted">კატალოგი მალე შეივსება.</p>@endforelse
 </div></section>
+<section class="card" id="reviews">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<div><h2 style="margin:0">მომხმარებელთა შეფასებები</h2><p class="muted">მხოლოდ ბიზნესის მიერ დადასტურებული შეფასებები ქვეყნდება.</p></div>
+@if(($reviewStats->total ?? 0)>0)<div style="text-align:right"><strong style="font-size:30px">★ {{ number_format((float)$reviewStats->average,1) }}</strong><div class="muted">{{ $reviewStats->total }} შეფასება</div></div>@else<span class="muted">ჯერ შეფასება არ არის</span>@endif
+</div>
+@if(session('review_status'))<p class="muted" style="color:#a8f0d1">{{ session('review_status') }}</p>@endif
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px">
+@forelse($reviews as $review)
+<article style="padding:16px;border:1px solid var(--line);border-radius:14px;background:#0d0b17">
+<div style="color:#f5c66a;letter-spacing:2px" aria-label="{{ $review->rating }} ხუთიდან">{{ str_repeat('★',$review->rating) }}{{ str_repeat('☆',5-$review->rating) }}</div>
+<strong>{{ $review->customer_name }}</strong>
+@if($review->comment)<p class="muted" style="white-space:pre-line">{{ $review->comment }}</p>@endif
+<small class="muted">{{ $review->created_at->format('d.m.Y') }}</small>
+</article>
+@empty<p class="muted">იყავი პირველი, ვინც შეაფასებს ამ ბიზნესს.</p>
+@endforelse
+</div>
+<h3 style="margin-top:24px">დატოვე შეფასება</h3>
+<form method="POST" data-track-form="review" action="{{ route('business.public.reviews.store',$business->slug) }}" style="display:grid;gap:10px">
+@csrf
+<input name="customer_name" required maxlength="120" placeholder="შენი სახელი" autocomplete="name">
+<label class="muted" for="review-rating">შეფასება</label>
+<select id="review-rating" name="rating" required><option value="">აირჩიე ვარსკვლავები</option><option value="5">★★★★★ — შესანიშნავი</option><option value="4">★★★★☆ — ძალიან კარგი</option><option value="3">★★★☆☆ — კარგი</option><option value="2">★★☆☆☆ — საშუალო</option><option value="1">★☆☆☆☆ — ცუდი</option></select>
+<textarea name="comment" rows="3" maxlength="2000" placeholder="შენი გამოცდილება (არასავალდებულო)"></textarea>
+<div aria-hidden="true" style="position:absolute;left:-10000px"><label>ვებგვერდი<input name="website" tabindex="-1" autocomplete="off"></label></div>
+<button class="action" type="submit" style="border:0;cursor:pointer">შეფასების გაგზავნა</button>
+</form>
+</section>
 <footer>ეს გვერდი შექმნილია <strong>oneQR</strong>-ით · ONE SCAN. ENDLESS POSSIBILITIES.</footer></main>
 <script>
 (() => {
