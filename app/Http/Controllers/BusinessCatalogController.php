@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Business;
 use App\Models\BusinessCatalogItem;
 use App\Models\BusinessOrderRequest;
+use App\Services\BusinessActivityNotifier;
 use App\Support\BusinessAccess;
 use App\Support\PlanAccess;
 use Illuminate\Http\RedirectResponse;
@@ -75,7 +76,7 @@ class BusinessCatalogController extends Controller
         return back()->with('status', 'კატალოგის ჩანაწერი წაიშალა.');
     }
 
-    public function submitOrder(Request $request, string $slug, int $item): RedirectResponse
+    public function submitOrder(Request $request, string $slug, int $item, BusinessActivityNotifier $notifier): RedirectResponse
     {
         $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
         $catalogItem = $business->catalogItems()->where('is_available', true)->findOrFail($item);
@@ -96,6 +97,13 @@ class BusinessCatalogController extends Controller
             'currency' => $catalogItem->currency,
             'status' => 'new',
         ]);
+        $notifier->notify(
+            $business,
+            'order_request.created',
+            'ახალი პროდუქტის/სერვისის მოთხოვნა',
+            $data['customer_name'].'-მა მოითხოვა '.$catalogItem->name.' (რაოდენობა: '.$data['quantity'].').',
+            route('business.catalog.index', $business),
+        );
 
         return back()->with('order_status', 'მოთხოვნა წარმატებით გაიგზავნა. ბიზნესი დაგიკავშირდებათ.');
     }
