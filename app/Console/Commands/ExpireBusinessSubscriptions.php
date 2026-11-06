@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Console\\Commands;
+namespace App\Console\Commands;
 
-use App\\Models\\BusinessSubscription;
-use App\\Models\\SubscriptionPlan;
-use Illuminate\\Console\\Command;
-use Illuminate\\Support\\Facades\\DB;
+use App\Models\BusinessSubscription;
+use App\Models\SubscriptionPlan;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class ExpireBusinessSubscriptions extends Command
 {

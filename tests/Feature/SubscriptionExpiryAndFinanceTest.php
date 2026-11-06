@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\\Feature;
+namespace Tests\Feature;
 
-use App\\Models\\Business;
-use App\\Models\\BusinessSubscription;
-use App\\Models\\BusinessSubscriptionPayment;
-use App\\Models\\SubscriptionPlan;
-use App\\Models\\User;
-use Illuminate\\Foundation\\Testing\\RefreshDatabase;
-use Illuminate\\Support\\Facades\\Artisan;
-use Illuminate\\Support\\Str;
-use Tests\\TestCase;
+use App\Models\Business;
+use App\Models\BusinessSubscription;
+use App\Models\BusinessSubscriptionPayment;
+use App\Models\SubscriptionPlan;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 class SubscriptionExpiryAndFinanceTest extends TestCase
 {

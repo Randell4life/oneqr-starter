@@ -1,14 +1,14 @@
 <?php
 
-namespace App\\Http\\Controllers;
+namespace App\Http\Controllers;
 
-use App\\Models\\BusinessSubscriptionPayment;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Carbon;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Validation\\Rule;
-use Illuminate\\View\\View;
-use Symfony\\Component\\HttpFoundation\\StreamedResponse;
+use App\Models\BusinessSubscriptionPayment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PlatformSubscriptionFinanceController extends Controller
 {
@@ -94,7 +94,7 @@ class PlatformSubscriptionFinanceController extends Controller
             : now();
 
         if ($from->gt($to)) {
-            throw \\Illuminate\\Validation\\ValidationException::withMessages([
+            throw \Illuminate\Validation\ValidationException::withMessages([
                 'from' => 'საწყისი თარიღი საბოლოო თარიღზე გვიან ვერ იქნება.',
             ]);
         }
