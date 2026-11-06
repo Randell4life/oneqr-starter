@@ -115,7 +115,10 @@ class BusinessCartController extends Controller
             return back()->withErrors(['cart' => 'კალათა ცარიელია.']);
         }
 
-        $order = DB::transaction(function () use ($business, $cart, $data) {
+        $tableContext = $request->session()->get('oneqr_table_context');
+        $tableLabel = (($tableContext['business_id'] ?? null) === $business->id) ? ($tableContext['label'] ?? null) : null;
+
+        $order = DB::transaction(function () use ($business, $cart, $data, $tableLabel) {
             $items = $business->catalogItems()
                 ->where('is_available', true)
                 ->whereIn('id', array_keys($cart))
@@ -157,6 +160,7 @@ class BusinessCartController extends Controller
             $subtotal = round($items->sum(fn ($item) => (float) $item->price * (int) $cart[$item->id]), 2);
             $order = BusinessOrder::create($data + [
                 'business_id' => $business->id,
+                'table_label' => $tableLabel,
                 'order_number' => 'OQR-'.now()->format('ymd').'-'.Str::upper(Str::random(6)),
                 'subtotal' => $subtotal,
                 'total' => $subtotal,
@@ -205,6 +209,7 @@ class BusinessCartController extends Controller
         });
 
         session()->forget($this->cartKey($business));
+        session()->forget('oneqr_table_context');
 
         if ($order->payment_method === 'tbc_card') {
             $payment = BusinessOrderPayment::create([

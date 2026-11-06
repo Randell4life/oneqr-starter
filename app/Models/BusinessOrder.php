@@ -11,7 +11,7 @@ class BusinessOrder extends Model
     protected $fillable = [
         'business_id', 'order_number', 'customer_name', 'customer_phone',
         'customer_email', 'customer_address', 'notes', 'subtotal', 'total',
-        'currency', 'status', 'payment_method', 'payment_status', 'stock_deducted_at', 'stock_restored_at',
+        'currency', 'status', 'payment_method', 'payment_status', 'stock_deducted_at', 'stock_restored_at', 'table_label',
     ];
 
     protected function casts(): array
