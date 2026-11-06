@@ -2,6 +2,24 @@
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>კატალოგი — oneQR</title>
 <style>
 :root{color-scheme:dark;--bg:#090812;--panel:#121020;--line:#29243d;--text:#f6f3ff;--muted:#aaa3bd;--purple:#9b72ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Inter,system-ui,sans-serif}main{max-width:1120px;margin:42px auto;padding:0 22px}a{color:#c7b3ff;text-decoration:none}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin:18px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}label{display:block;color:var(--muted);font-size:13px;margin:12px 0 6px}input,select,textarea{width:100%;padding:11px;background:#090812;border:1px solid var(--line);border-radius:9px;color:white}textarea{min-height:90px}.btn,button{display:inline-block;padding:10px 14px;border:1px solid #684bb0;background:#39265f;border-radius:9px;color:white;cursor:pointer;margin-top:12px}.muted{color:var(--muted);font-size:13px}.notice{padding:12px;border:1px solid #347d5b;border-radius:9px;color:#a8f0d1;margin:14px 0}.item{border-top:1px solid var(--line);padding:18px 0}.item img{width:88px;height:88px;object-fit:cover;border-radius:12px;float:right}.columns{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:780px){.columns{grid-template-columns:1fr}}
+</style>
+<style>
+body{background:radial-gradient(ellipse at 80% -20%,#3a286455,transparent 42%),#080711!important}
+main{max-width:1280px!important;margin:30px auto!important}
+main>a:first-child{display:inline-flex;padding:9px 13px;border:1px solid var(--oq-line);border-radius:10px;background:#151222;margin:0 8px 18px 0}
+main>h1{font-size:clamp(28px,4vw,42px)!important;margin:14px 0 7px}
+main>.muted{margin-bottom:22px}
+.columns{grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr)!important;gap:18px!important}
+.panel{box-shadow:0 14px 38px #0003!important}
+.panel h2{font-size:19px;margin-top:0}
+.item{padding:22px 0!important}
+.item h3{font-size:17px}
+.item img{width:104px;height:104px;border:1px solid var(--oq-line);padding:3px;background:#0b0b15}
+.grid{gap:14px!important}
+label{font-weight:650!important}
+input[type=checkbox]{accent-color:#9b72ff}
+.notice{background:#14271f!important}
+@media(max-width:780px){.columns{grid-template-columns:1fr!important}main{margin:20px auto!important}}
 </style>@include('partials.design-system')
 </head><body><main><a href="{{ route('dashboard') }}">← კაბინეტი</a> · <a href="{{ route('business.profile.edit',$business) }}">ბიზნესის გვერდი</a><h1>{{ $business->name }} — კატალოგი და მოთხოვნები</h1><p class="muted">დაამატე პროდუქტები ან სერვისები. მომხმარებელი საჯარო გვერდიდან გამოგიგზავნის შეკვეთის მოთხოვნას.</p>
 @if(session('status') || session('order_status'))<div class="notice">{{ session('status') ?: session('order_status') }}</div>@endif

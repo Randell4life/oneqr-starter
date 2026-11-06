@@ -2,6 +2,24 @@
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ბიზნეს-კაბინეტი — oneQR</title>
 <style>
 :root{color-scheme:dark;--bg:#090812;--panel:#121020;--line:#29243d;--text:#f6f3ff;--muted:#aaa3bd;--purple:#9b72ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Inter,system-ui,sans-serif}.nav{height:76px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1100px)/2))}.logo{font-size:24px;font-weight:900}.logo span{color:var(--purple)}main{max-width:1100px;margin:50px auto;padding:0 24px}h1{font-size:32px;margin:0 0 8px}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:28px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}.pill{display:inline-block;background:#38285e;color:#d9c9ff;border-radius:99px;padding:5px 10px;font-size:12px}.metric{font-size:28px;font-weight:800;margin:18px 0 5px}.empty{margin-top:28px;padding:30px;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}a{color:#c0aaff;text-decoration:none}.button{display:inline-block;margin-top:14px;padding:10px 14px;background:#39265f;border:1px solid #684bb0;border-radius:9px;color:white}
+</style>
+<style>
+body{background:radial-gradient(ellipse at 80% -20%,#3a286455,transparent 42%),#080711!important}
+.nav{height:auto;min-height:78px;gap:18px;flex-wrap:wrap;background:#0d0b18dd!important;backdrop-filter:blur(18px)}
+.nav:before{content:"BUSINESS WORKSPACE";color:#a78bfa;font-size:10px;font-weight:850;letter-spacing:.18em;position:absolute;left:50%;transform:translateX(-50%);top:19px}
+.nav form button{margin:0}
+main{max-width:1240px!important;margin:52px auto!important}
+main>h1{font-size:clamp(32px,5vw,48px)!important;letter-spacing:-.055em!important}
+main>.muted{font-size:14px;max-width:700px}
+.cards{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))!important;gap:18px!important}
+.card{position:relative;overflow:hidden;min-height:260px;transition:transform .2s,border-color .2s}
+.card:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#7547e8,#b69cff,transparent)}
+.card:hover{transform:translateY(-4px);border-color:#7053a4!important}
+.card h2{font-size:23px;margin:17px 0 5px}
+.card .metric{font-size:36px;color:#d9c8ff;margin:18px 0 0}
+.card .button{margin:8px 7px 0 0!important;font-size:12px;padding:9px 12px!important}
+.pill{background:#2b2045;color:#d9c8ff;border:1px solid #624b91}
+@media(max-width:600px){.nav:before{display:none}main{margin:28px auto!important}.cards{grid-template-columns:1fr!important}.card{min-height:0}}
 </style>@include('partials.design-system')
 </head><body><header class="nav"><div class="logo">one<span>QR</span></div><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">გასვლა</button></form></header>
 <main><h1>ბიზნეს-კაბინეტი</h1><p class="muted">მოგესალმები, {{ auth()->user()->name }}. მართე შენი ბიზნესები, ფილიალები, გუნდი და QR კოდები. <a href="{{ route('team.invitations') }}">მოწვევები</a></p>
