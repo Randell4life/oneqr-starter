@@ -105,7 +105,7 @@ footer{border-top:1px solid #ffffff16;padding:28px 0;color:#88839d;font-size:12p
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 (function(){
- const businesses = @json($mapBusinesses->map(fn($business) => ['name'=>$business->name,'slug'=>$business->slug,'city'=>$business->city,'address'=>$business->address,'lat'=>(float)$business->latitude,'lng'=>(float)$business->longitude])->values());
+ const businesses = @json($mapBusinesses);
  const map = L.map('business-map',{scrollWheelZoom:false}).setView([42.2,43.4],6);
  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
  const bounds=[];
