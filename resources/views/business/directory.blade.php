@@ -63,7 +63,7 @@ footer{border-top:1px solid #ffffff16;padding:28px 0;color:#88839d;font-size:12p
 @endif
 <form class="filters" method="GET" action="{{ route('business.directory') }}">
 <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="მოძებნე ბიზნესი, პროდუქტი ან სერვისი..." aria-label="ძებნა">
-<select name="category" aria-label="კატეგორია"><option value="">ყველა კატეგორია</option>@foreach($categoryLabels as $key=>$label)<option value="{{ $key }}" @selected(($filters['category'] ?? '')===$key)>{{ $label }}</option>@endforeach</select>
+<select name="category" aria-label="კატეგორია"><option value="">ყველა კატეგორია</option>@foreach($categoryLabels as $key=>$label)@if(($categoryCounts[$key] ?? 0)>0)<option value="{{ $key }}" @selected(($filters['category'] ?? '')===$key)>{{ $label }}</option>@endif @endforeach</select>
 <select name="city" aria-label="ქალაქი"><option value="">ყველა ქალაქი</option>@foreach($cities as $city)<option value="{{ $city }}" @selected(($filters['city'] ?? '')===$city)>{{ $city }}</option>@endforeach</select>
 <select name="sort" aria-label="დალაგება"><option value="recent" @selected(($filters['sort'] ?? 'recent')==='recent')>ახლახან დამატებული</option><option value="rated" @selected(($filters['sort'] ?? '')==='rated')>რეიტინგით</option><option value="name" @selected(($filters['sort'] ?? '')==='name')>სახელით</option></select>
 <button type="submit">ძიება ↗</button>
