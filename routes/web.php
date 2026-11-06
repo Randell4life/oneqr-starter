@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/platform/subscription-plans', [\App\Http\Controllers\PlatformSubscriptionPlanController::class, 'index'])->name('platform.subscription-plans.index');
     Route::put('/platform/subscription-plans/{plan}', [\App\Http\Controllers\PlatformSubscriptionPlanController::class, 'update'])->whereNumber('plan')->name('platform.subscription-plans.update');
+    Route::get('/platform/subscription-finance', [\\App\\Http\\Controllers\\PlatformSubscriptionFinanceController::class, 'index'])->name('platform.subscription-finance.index');
+    Route::get('/platform/subscription-finance/export', [\\App\\Http\\Controllers\\PlatformSubscriptionFinanceController::class, 'export'])->name('platform.subscription-finance.export');
 
     Route::get('/businesses/{business}/subscription', [BusinessSubscriptionController::class, 'index'])->name('business.subscription');
     Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->middleware('throttle:5,1')->name('business.subscription.checkout');

@@ -23,7 +23,7 @@ small{color:var(--muted)}@media(max-width:480px){.grid{grid-template-columns:1fr
 </style>
 </head>
 <body>
-<header><div class="logo">one<span>QR</span> <small> / PLATFORM</small></div><a href="{{ route('dashboard') }}">კაბინეტში დაბრუნება ←</a></header>
+<header><div class="logo">one<span>QR</span> <small> / PLATFORM</small></div><nav style="display:flex;gap:16px;flex-wrap:wrap"><a href="{{ route('platform.subscription-finance.index') }}">ფინანსური ანგარიშგება</a><a href="{{ route('dashboard') }}">კაბინეტში დაბრუნება ←</a></nav></header>
 <main>
 @if(session('status'))<div class="notice">{{ session('status') }}</div>@endif
 @if($errors->any())<div class="notice">@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach</div>@endif

@@ -17,6 +17,11 @@ class PlanAccess
             ->where(function ($query): void {
                 $query->whereNull('ends_at')->orWhere('ends_at', '>', now());
             })
+            ->where(function ($query): void {
+                $query->where('status', '!=', 'trialing')
+                    ->orWhereNull('trial_ends_at')
+                    ->orWhere('trial_ends_at', '>', now());
+            })
             ->latest('starts_at')
             ->first();
     }
