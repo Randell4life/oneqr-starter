@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Support\BusinessAccess;
+use App\Services\BusinessActivityNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class BusinessReviewController extends Controller
 {
-    public function store(Request $request, string $slug): RedirectResponse
+    public function store(Request $request, string $slug, BusinessActivityNotifier $notifier): RedirectResponse
     {
         $business = Business::query()
             ->where('slug', $slug)
@@ -27,6 +28,13 @@ class BusinessReviewController extends Controller
         unset($data['website']);
         $data['status'] = 'pending';
         $business->reviews()->create($data);
+        $notifier->notify(
+            $business,
+            'review.created',
+            'ახალი შეფასება',
+            $data['customer_name'].'-მა დატოვა ახალი შეფასება ('.$data['rating'].'/5).',
+            route('business.catalog.index', $business),
+        );
 
         return back()->with('review_status', 'შეფასება მიღებულია და გამოქვეყნდება ბიზნესის დადასტურების შემდეგ.');
     }
