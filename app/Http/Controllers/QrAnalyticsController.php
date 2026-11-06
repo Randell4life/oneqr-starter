@@ -59,9 +59,30 @@ class QrAnalyticsController extends Controller
             ->limit(8)
             ->get();
 
+
+        $campaigns = \App\Models\QrScanEvent::query()
+            ->join('qr_codes', 'qr_scan_events.qr_code_id', '=', 'qr_codes.id')
+            ->whereIn('qr_codes.id', $visibleQrIds)
+            ->where('qr_scan_events.scanned_at', '>=', $from)
+            ->selectRaw("COALESCE(qr_codes.campaign_name, 'სტანდარტული') as label, COUNT(*) as scans")
+            ->groupBy('qr_codes.campaign_name')
+            ->orderByDesc('scans')
+            ->get();
+
+        $placements = \App\Models\QrScanEvent::query()
+            ->join('qr_codes', 'qr_scan_events.qr_code_id', '=', 'qr_codes.id')
+            ->leftJoin('business_branches', 'qr_codes.branch_id', '=', 'business_branches.id')
+            ->whereIn('qr_codes.id', $visibleQrIds)
+            ->where('qr_scan_events.scanned_at', '>=', $from)
+            ->selectRaw("COALESCE(business_branches.name, 'ყველა ფილიალი') as branch_name, COALESCE(qr_codes.placement_label, qr_codes.name) as placement, COUNT(*) as scans")
+            ->groupBy('business_branches.name', 'qr_codes.placement_label', 'qr_codes.name')
+            ->orderByDesc('scans')
+            ->limit(20)
+            ->get();
+
         $recentTotal = (int) $days->sum('scans');
         $totalScans = (int) $access->visibleQrCodes($request->user(), $business)->sum('scan_count');
 
-        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers'));
+        return view('analytics.index', compact('business', 'codes', 'days', 'totalScans', 'recentTotal', 'devices', 'referrers', 'campaigns', 'placements'));
     }
 }
