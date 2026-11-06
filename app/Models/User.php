@@ -38,6 +38,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(BusinessMembership::class);
     }
 
+    public function favoriteBusinesses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Business::class, 'business_favorites')->withTimestamps();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin' && $this->is_platform_admin;
