@@ -90,6 +90,14 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/businesses/{business}/qr/{qrCode}/image.svg', [QrImageController::class, 'show'])->whereNumber('qrCode')->name('business.qr.image');
     Route::get('/businesses/{business}/qr/{qrCode}/print', [QrImageController::class, 'printCard'])->whereNumber('qrCode')->name('business.qr.print');
 
+    Route::get('/support', [\App\Http\Controllers\SupportTicketController::class, 'index'])->name('support.index');
+    Route::get('/support/create', [\App\Http\Controllers\SupportTicketController::class, 'create'])->name('support.create');
+    Route::post('/support', [\App\Http\Controllers\SupportTicketController::class, 'store'])->middleware('throttle:10,1')->name('support.store');
+    Route::get('/support/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'show'])->whereNumber('ticket')->name('support.show');
+    Route::post('/support/{ticket}/replies', [\App\Http\Controllers\SupportTicketController::class, 'reply'])->whereNumber('ticket')->middleware('throttle:20,1')->name('support.reply');
+    Route::get('/platform/support', [\App\Http\Controllers\SupportTicketController::class, 'platformIndex'])->name('platform.support.index');
+    Route::patch('/platform/support/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'platformUpdate'])->whereNumber('ticket')->name('platform.support.update');
+
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 });
 
