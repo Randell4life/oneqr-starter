@@ -15,7 +15,7 @@ class BusinessFavoriteTest extends TestCase
     {
         return Business::create([
             'owner_id' => User::factory()->create()->id,
-            'name' => 'Favorite Demo',
+            'name' => 'Business '.$slug,
             'slug' => $slug,
             'business_type' => 'services',
             'status' => 'active',
@@ -78,8 +78,8 @@ class BusinessFavoriteTest extends TestCase
         $this->actingAs($user)
             ->get(route('favorites.index'))
             ->assertOk()
-            ->assertSee('Favorite Demo')
-            ->assertDontSee('hidden-favorite-demo');
+            ->assertSee('Business visible-favorite-demo')
+            ->assertDontSee('Business hidden-favorite-demo');
 
         $this->assertSame(2, $user->fresh()->favoriteBusinesses()->count());
         $this->assertSame(1, $anotherUser->fresh()->favoriteBusinesses()->count());
