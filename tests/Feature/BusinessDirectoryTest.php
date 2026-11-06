@@ -101,4 +101,66 @@ class BusinessDirectoryTest extends TestCase
             ->assertOk()
             ->assertSee(route('business.public', $business->slug), false);
     }
+
+    public function test_directory_shows_popular_businesses_ranked_by_favorites(): void
+    {
+        $owner = User::factory()->create();
+        $first = Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Popular Cafe',
+            'slug' => 'popular-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => true,
+        ]);
+        $second = Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Another Cafe',
+            'slug' => 'another-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => true,
+        ]);
+
+        $first->favoritedBy()->attach(User::factory()->create()->id);
+        $first->favoritedBy()->attach(User::factory()->create()->id);
+        $second->favoritedBy()->attach(User::factory()->create()->id);
+
+        $response = $this->get(route('business.directory'))->assertOk();
+        $response->assertSee('პოპულარული ბიზნესები')
+            ->assertSee('Popular Cafe')
+            ->assertSee('2 რჩეული');
+        $this->assertLessThan(
+            strpos($response->getContent(), 'Another Cafe'),
+            strpos($response->getContent(), 'Popular Cafe')
+        );
+    }
+
+    public function test_directory_category_chips_show_only_categories_with_published_active_businesses(): void
+    {
+        $owner = User::factory()->create();
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Published Cafe',
+            'slug' => 'published-cafe',
+            'business_type' => 'restaurant',
+            'status' => 'active',
+            'is_published' => true,
+        ]);
+        Business::create([
+            'owner_id' => $owner->id,
+            'name' => 'Hidden Shop',
+            'slug' => 'hidden-shop',
+            'business_type' => 'retail',
+            'status' => 'suspended',
+            'is_published' => true,
+        ]);
+
+        $this->get(route('business.directory'))
+            ->assertOk()
+            ->assertSee('value="restaurant"', false)
+            ->assertDontSee('value="retail"', false)
+            ->assertDontSee('category=retail');
+    }
+
 }
