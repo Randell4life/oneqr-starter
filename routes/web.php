@@ -17,6 +17,7 @@ use App\Http\Controllers\QrImageController;
 use App\Http\Controllers\QrRedirectController;
 use App\Http\Controllers\SmartPageInteractionController;
 use App\Http\Controllers\BusinessInquiryController;
+use App\Http\Controllers\BusinessReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
