@@ -60,20 +60,17 @@ class PlatformBusinessSubscriptionController extends Controller
     {
         $this->authorizePlatformAdmin($request);
 
-        $data = $request->validate([
+        $planId = $request->validate([
             'plan_id' => ['required', 'integer', Rule::exists('subscription_plans', 'id')],
-            'duration_months' => ['nullable', 'integer', 'min:1', 'max:36'],
-            'reason' => ['required', 'string', 'min:5', 'max:500'],
-        ]);
+        ])['plan_id'];
 
-        $plan = SubscriptionPlan::query()->findOrFail($data['plan_id']);
+        $plan = SubscriptionPlan::query()->findOrFail($planId);
         $isFreePlan = $plan->slug === 'free';
 
-        if (! $isFreePlan && empty($data['duration_months'])) {
-            return back()->withErrors([
-                'duration_months' => 'ფასიანი გეგმის მინიჭებისას მიუთითე მოქმედების ვადა (1–36 თვე).',
-            ])->withInput();
-        }
+        $data = $request->validate([
+            'duration_months' => [$isFreePlan ? 'nullable' : 'required', 'integer', 'min:1', 'max:36'],
+            'reason' => ['required', 'string', 'min:5', 'max:500'],
+        ]);
 
         DB::transaction(function () use ($request, $business, $plan, $data, $isFreePlan): void {
             $lockedBusiness = Business::query()->whereKey($business->id)->lockForUpdate()->firstOrFail();
