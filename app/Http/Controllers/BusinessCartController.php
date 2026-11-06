@@ -8,6 +8,7 @@ use App\Models\BusinessOrder;
 use App\Models\BusinessOrderPayment;
 use App\Models\BusinessInventoryMovement;
 use App\Services\Payments\TbcCheckout;
+use App\Services\BusinessActivityNotifier;
 use App\Support\BusinessAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,7 +95,7 @@ class BusinessCartController extends Controller
         return back()->with('cart_status', 'პროდუქტი კალათიდან წაიშალა.');
     }
 
-    public function checkout(Request $request, string $slug, TbcCheckout $tbc): RedirectResponse
+    public function checkout(Request $request, string $slug, TbcCheckout $tbc, BusinessActivityNotifier $notifier): RedirectResponse
     {
         $business = Business::query()->where('slug', $slug)->where('is_published', true)->firstOrFail();
         $data = $request->validate([
@@ -210,6 +211,14 @@ class BusinessCartController extends Controller
 
         session()->forget($this->cartKey($business));
         session()->forget('oneqr_table_context');
+
+        $notifier->notify(
+            $business,
+            'order.created',
+            'ახალი შეკვეთა',
+            'მიღებულია ახალი შეკვეთა '.$order->order_number.' — '.number_format((float) $order->total, 2).' '.$order->currency,
+            route('business.orders.index', $business),
+        );
 
         if ($order->payment_method === 'tbc_card') {
             $payment = BusinessOrderPayment::create([
