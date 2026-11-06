@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/team/invitations/{membership}/accept', [BusinessManagementController::class, 'acceptInvitation'])->whereNumber('membership')->name('team.invitations.accept');
 
     Route::get('/businesses/{business}/qr', [BusinessQrController::class, 'index'])->name('business.qr.index');
+    Route::get('/businesses/{business}/tables', [BusinessQrController::class, 'tables'])->name('business.tables.index');
     Route::post('/businesses/{business}/qr', [BusinessQrController::class, 'store'])->name('business.qr.store');
     Route::put('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'update'])->whereNumber('qrCode')->name('business.qr.update');
     Route::delete('/businesses/{business}/qr/{qrCode}', [BusinessQrController::class, 'destroy'])->whereNumber('qrCode')->name('business.qr.destroy');
