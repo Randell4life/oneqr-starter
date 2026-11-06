@@ -158,8 +158,9 @@ class BusinessDirectoryTest extends TestCase
 
         $this->get(route('business.directory'))
             ->assertOk()
-            ->assertSee('რესტორნები და კაფეები')
-            ->assertDontSee('მაღაზიები');
+            ->assertSee('value="restaurant"', false)
+            ->assertDontSee('value="retail"', false)
+            ->assertDontSee('category=retail');
     }
 
 }
