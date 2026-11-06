@@ -116,6 +116,7 @@ Route::post('/b/{slug}/checkout', [BusinessCartController::class, 'checkout'])->
 Route::post('/b/{slug}/catalog/{item}/order', [BusinessCatalogController::class, 'submitOrder'])->whereNumber('item')->middleware('throttle:10,1')->name('business.catalog.order');
 Route::post('/p/{slug}/interactions', [SmartPageInteractionController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:30,1')->name('business.public.interactions');
 Route::post('/p/{slug}/inquiries', [BusinessInquiryController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:5,1')->name('business.public.inquiries.store');
+Route::post('/p/{slug}/reviews', [BusinessReviewController::class, 'store'])->where('slug', '[A-Za-z0-9-]+')->middleware('throttle:3,10')->name('business.public.reviews.store');
 Route::get('/p/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public');
 Route::get('/b/{slug}', [BusinessProfileController::class, 'show'])->where('slug', '[A-Za-z0-9-]+')->name('business.public.legacy');
 Route::get('/q/{publicId}', QrRedirectController::class)->whereUuid('publicId')->name('qr.redirect');
