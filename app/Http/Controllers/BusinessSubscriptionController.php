@@ -20,6 +20,7 @@ class BusinessSubscriptionController extends Controller
             ->get();
 
         $subscription = $access->subscription($business);
+        $latestSubscription = $business->subscriptions()->with('plan')->latest('starts_at')->first();
         $currentPlan = $access->plan($business);
         $usage = $access->usage($business);
         $payments = BusinessSubscriptionPayment::query()
@@ -33,6 +34,7 @@ class BusinessSubscriptionController extends Controller
             'business',
             'plans',
             'subscription',
+            'latestSubscription',
             'currentPlan',
             'usage',
             'payments'

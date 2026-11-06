@@ -42,6 +42,9 @@ Route::middleware('auth')->group(function (): void {
         return view('dashboard', compact('businesses', 'teamMemberships'));
     })->name('dashboard');
 
+    Route::get('/platform/subscription-plans', [\App\Http\Controllers\PlatformSubscriptionPlanController::class, 'index'])->name('platform.subscription-plans.index');
+    Route::put('/platform/subscription-plans/{plan}', [\App\Http\Controllers\PlatformSubscriptionPlanController::class, 'update'])->whereNumber('plan')->name('platform.subscription-plans.update');
+
     Route::get('/businesses/{business}/subscription', [BusinessSubscriptionController::class, 'index'])->name('business.subscription');
     Route::post('/businesses/{business}/subscription/{plan}/checkout', [BusinessSubscriptionPaymentController::class, 'checkout'])->whereNumber('plan')->middleware('throttle:5,1')->name('business.subscription.checkout');
     Route::get('/payments/tbc/return/{uuid}', [BusinessSubscriptionPaymentController::class, 'returned'])->middleware('throttle:10,1')->name('payments.tbc.return');
