@@ -23,6 +23,7 @@ use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
+Route::get('/discover', [\App\Http\Controllers\BusinessDirectoryController::class, 'index'])->name('business.directory');
 
 Route::middleware('guest')->group(function (): void {
     Route::view('/register', 'auth.register')->name('register');
