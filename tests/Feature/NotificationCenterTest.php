@@ -85,6 +85,53 @@ class NotificationCenterTest extends TestCase
         $this->assertNull($notification->fresh()->read_at);
     }
 
+    public function test_business_notifications_are_sent_to_owner_and_active_team_members_only_once(): void
+    {
+        $owner = User::factory()->create();
+        $manager = User::factory()->create();
+        $inactive = User::factory()->create();
+        $business = $this->businessFor($owner, 'notify-team');
+
+        $business->memberships()->create([
+            'user_id' => $manager->id,
+            'role' => 'manager',
+            'status' => 'active',
+        ]);
+        $business->memberships()->create([
+            'user_id' => $inactive->id,
+            'role' => 'staff',
+            'status' => 'invited',
+        ]);
+
+        app(\App\Services\BusinessActivityNotifier::class)->notify(
+            $business,
+            'order.created',
+            'ახალი შეკვეთა',
+            'შეკვეთა მიღებულია.',
+            route('business.catalog.index', $business),
+        );
+
+        $this->assertSame(1, $owner->fresh()->notifications()->count());
+        $this->assertSame(1, $manager->fresh()->notifications()->count());
+        $this->assertSame(0, $inactive->fresh()->notifications()->count());
+    }
+
+    public function test_unsafe_notification_redirects_fall_back_to_notification_center(): void
+    {
+        $owner = User::factory()->create();
+        $business = $this->businessFor($owner, 'notify-safe-link');
+
+        $owner->notify(new BusinessActivityNotification(
+            'test.event', 'უსაფრთხო ბმულის ტესტი', 'ტესტი.',
+            'javascript:alert(1)', $business->id, $business->name
+        ));
+        $notification = $owner->notifications()->firstOrFail();
+
+        $this->actingAs($owner)
+            ->patch(route('notifications.read', $notification->id))
+            ->assertRedirect(route('notifications.index'));
+    }
+
     public function test_user_can_mark_all_own_notifications_as_read(): void
     {
         $owner = User::factory()->create();
