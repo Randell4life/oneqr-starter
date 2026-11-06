@@ -97,7 +97,16 @@ class BusinessDirectoryController extends Controller
             })
             ->select(['id', 'name', 'slug', 'business_type', 'city', 'address', 'latitude', 'longitude'])
             ->limit(250)
-            ->get();
+            ->get()
+            ->map(fn (Business $business): array => [
+                'name' => $business->name,
+                'slug' => $business->slug,
+                'city' => $business->city,
+                'address' => $business->address,
+                'lat' => (float) $business->latitude,
+                'lng' => (float) $business->longitude,
+            ])
+            ->values();
 
         $hasFilters = collect($filters)->contains(fn ($value) => filled($value));
         $popularBusinesses = collect();
