@@ -59,7 +59,7 @@ class BusinessProfileController extends Controller
         return back()->with('status', 'ბიზნესის პროფილი წარმატებით განახლდა.');
     }
 
-    public function show(string $slug, SmartPageResolver $resolver): View
+    public function show(Request $request, string $slug, SmartPageResolver $resolver): View
     {
         $business = Business::query()
             ->where('slug', $slug)
@@ -70,8 +70,9 @@ class BusinessProfileController extends Controller
         $smartPage = $resolver->resolve($business);
         $reviews = $business->reviews()->where('status', 'approved')->latest()->limit(12)->get();
         $reviewStats = $business->reviews()->where('status', 'approved')->selectRaw('COUNT(*) as total, AVG(rating) as average')->first();
+        $isFavorite = $request->user()?->favoriteBusinesses()->whereKey($business->id)->exists() ?? false;
 
-        return view('business.public-profile', compact('business', 'smartPage', 'reviews', 'reviewStats'));
+        return view('business.public-profile', compact('business', 'smartPage', 'reviews', 'reviewStats', 'isFavorite'));
     }
 
     private function authorizeOwner(Request $request, Business $business): void
