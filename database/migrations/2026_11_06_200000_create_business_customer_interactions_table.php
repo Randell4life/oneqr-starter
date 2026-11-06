@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphs('contactable');
+            $table->string('contactable_type');
+            $table->unsignedBigInteger('contactable_id');
+            $table->index(['contactable_type', 'contactable_id'], 'bc_interactions_contactable_idx');
             $table->string('channel', 24);
             $table->text('summary');
             $table->dateTime('occurred_at');
