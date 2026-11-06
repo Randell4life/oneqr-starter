@@ -50,8 +50,9 @@ Route::middleware('auth')->group(function (): void {
             ->with(['business', 'branch'])
             ->latest()
             ->get();
+        $unreadNotifications = $user->unreadNotifications()->count();
 
-        return view('dashboard', compact('businesses', 'teamMemberships'));
+        return view('dashboard', compact('businesses', 'teamMemberships', 'unreadNotifications'));
     })->name('dashboard');
 
     Route::get('/platform/subscription-plans', [\App\Http\Controllers\PlatformSubscriptionPlanController::class, 'index'])->name('platform.subscription-plans.index');
