@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class BusinessInquiry extends Model
 {
@@ -20,5 +21,10 @@ class BusinessInquiry extends Model
     public function business(): BelongsTo
     {
         return $this->belongsTo(Business::class);
+    }
+
+    public function interactions(): MorphMany
+    {
+        return $this->morphMany(BusinessCustomerInteraction::class, 'contactable')->latest('occurred_at');
     }
 }
