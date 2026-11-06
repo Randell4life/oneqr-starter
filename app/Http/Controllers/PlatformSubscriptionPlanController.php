@@ -15,8 +15,9 @@ class PlatformSubscriptionPlanController extends Controller
 
         $plans = SubscriptionPlan::query()
             ->withCount(['subscriptions as active_subscriptions_count' => fn ($query) => $query
-                ->whereIn('status', ['active', 'trialing'])
-                ->where(fn ($active) => $active->whereNull('ends_at')->orWhere('ends_at', '>', now()))])
+                ->whereIn('status', ['active', 'trialing', 'canceled'])
+                ->where(fn ($active) => $active->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+                ->where(fn ($active) => $active->where('status', '!=', 'trialing')->orWhereNull('trial_ends_at')->orWhere('trial_ends_at', '>', now()))])
             ->orderBy('sort_order')
             ->get();
 
