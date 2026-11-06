@@ -34,6 +34,18 @@ main{max-width:1180px;margin:34px auto;padding:0 22px}.eyebrow{font-size:11px;le
 @if($item->message)<div class="message">{{ $item->message }}</div>@endif
 @if($canManage)<form method="POST" action="{{ route('business.inbox.update',[$business,'inquiry',$item->id]) }}">@csrf @method('PATCH')
 <div class="details"><div><label>სტატუსი</label><select class="field" name="status"><option value="new" @selected($item->status==='new')>ახალი</option><option value="contacted" @selected($item->status==='contacted')>დაკავშირებულია</option><option value="completed" @selected($item->status==='completed')>დასრულებული</option><option value="cancelled" @selected($item->status==='cancelled')>გაუქმებული</option></select></div><div><label>შემდგომი კონტაქტის დრო</label><input class="field" type="datetime-local" name="follow_up_at" value="{{ $item->follow_up_at?->format('Y-m-d\TH:i') }}"></div><div class="wide"><label>შიდა შენიშვნა — მხოლოდ ბიზნესის გუნდისთვის</label><textarea class="field" name="internal_notes" maxlength="5000" placeholder="მაგ. დავურეკე, ელოდება ფასის შეთავაზებას...">{{ $item->internal_notes }}</textarea></div></div><button type="submit">ჩანაწერის შენახვა</button></form>
+@endif
+@if($item->interactions->isNotEmpty())
+<div style="margin-top:15px"><strong>კომუნიკაციის ისტორია</strong>
+@foreach($item->interactions as $interaction)
+<div class="meta" style="padding:9px 0;border-top:1px solid var(--line)"><strong>{{ ['phone'=>'ზარი','email'=>'ელფოსტა','whatsapp'=>'WhatsApp','in_person'=>'პირადი შეხვედრა','note'=>'შენიშვნა'][$interaction->channel] ?? $interaction->channel }}</strong> · {{ $interaction->occurred_at->format('d.m.Y H:i') }} · {{ $interaction->user->name }}<br>{{ $interaction->summary }}</div>
+@endforeach
+</div>
+@endif
+@if($canManage)
+<form method="POST" action="{{ route('business.inbox.interactions.store',[$business,'inquiry',$item->id]) }}" style="margin-top:12px">@csrf
+<div class="details"><div><label>კონტაქტის არხი</label><select class="field" name="channel"><option value="phone">ტელეფონი</option><option value="email">ელფოსტა</option><option value="whatsapp">WhatsApp</option><option value="in_person">პირადი შეხვედრა</option><option value="note">შიდა ჩანაწერი</option></select></div><div><label>კონტაქტის დრო</label><input class="field" type="datetime-local" name="occurred_at" value="{{ now()->format('Y-m-d\\TH:i') }}" required></div><div class="wide"><label>შედეგი / მიმოწერის მოკლე შინაარსი</label><textarea class="field" name="summary" maxlength="3000" required placeholder="რა შეთანხმდით მომხმარებელთან?"></textarea></div></div><button type="submit">ისტორიაში დამატება</button></form>
+@endif
 @else@if($item->follow_up_at)<p class="meta">შემდგომი კონტაქტი: {{ $item->follow_up_at->format('d.m.Y H:i') }}</p>@endif@if($item->internal_notes)<p class="meta">შიდა შენიშვნა: {{ $item->internal_notes }}</p>@endif@endif
 <div class="meta" style="margin-top:12px"><a href="tel:{{ preg_replace('/[^0-9+]/','',$item->customer_phone) }}">დარეკვა ↗</a> @if($item->customer_email) · <a href="mailto:{{ $item->customer_email }}">ელფოსტის გახსნა ↗</a>@endif</div></article>
 @empty<div class="empty">ამ ფილტრით პირდაპირი მოთხოვნები ვერ მოიძებნა.</div>@endforelse
@@ -44,6 +56,18 @@ main{max-width:1180px;margin:34px auto;padding:0 22px}.eyebrow{font-size:11px;le
 @if($item->message)<div class="message">{{ $item->message }}</div>@endif
 @if($canManage)<form method="POST" action="{{ route('business.inbox.update',[$business,'order-request',$item->id]) }}">@csrf @method('PATCH')
 <div class="details"><div><label>სტატუსი</label><select class="field" name="status"><option value="new" @selected($item->status==='new')>ახალი</option><option value="processing" @selected($item->status==='processing')>მუშავდება</option><option value="completed" @selected($item->status==='completed')>დასრულებული</option><option value="cancelled" @selected($item->status==='cancelled')>გაუქმებული</option></select></div><div><label>შემდგომი კონტაქტის დრო</label><input class="field" type="datetime-local" name="follow_up_at" value="{{ $item->follow_up_at?->format('Y-m-d\TH:i') }}"></div><div class="wide"><label>შიდა შენიშვნა — მხოლოდ ბიზნესის გუნდისთვის</label><textarea class="field" name="internal_notes" maxlength="5000" placeholder="მაგ. მომხმარებელს შევუთანხმდით მიწოდებაზე...">{{ $item->internal_notes }}</textarea></div></div><button type="submit">ჩანაწერის შენახვა</button></form>
+@endif
+@if($item->interactions->isNotEmpty())
+<div style="margin-top:15px"><strong>კომუნიკაციის ისტორია</strong>
+@foreach($item->interactions as $interaction)
+<div class="meta" style="padding:9px 0;border-top:1px solid var(--line)"><strong>{{ ['phone'=>'ზარი','email'=>'ელფოსტა','whatsapp'=>'WhatsApp','in_person'=>'პირადი შეხვედრა','note'=>'შენიშვნა'][$interaction->channel] ?? $interaction->channel }}</strong> · {{ $interaction->occurred_at->format('d.m.Y H:i') }} · {{ $interaction->user->name }}<br>{{ $interaction->summary }}</div>
+@endforeach
+</div>
+@endif
+@if($canManage)
+<form method="POST" action="{{ route('business.inbox.interactions.store',[$business,'order-request',$item->id]) }}" style="margin-top:12px">@csrf
+<div class="details"><div><label>კონტაქტის არხი</label><select class="field" name="channel"><option value="phone">ტელეფონი</option><option value="email">ელფოსტა</option><option value="whatsapp">WhatsApp</option><option value="in_person">პირადი შეხვედრა</option><option value="note">შიდა ჩანაწერი</option></select></div><div><label>კონტაქტის დრო</label><input class="field" type="datetime-local" name="occurred_at" value="{{ now()->format('Y-m-d\\TH:i') }}" required></div><div class="wide"><label>შედეგი / მიმოწერის მოკლე შინაარსი</label><textarea class="field" name="summary" maxlength="3000" required placeholder="რა შეთანხმდით მომხმარებელთან?"></textarea></div></div><button type="submit">ისტორიაში დამატება</button></form>
+@endif
 @else@if($item->follow_up_at)<p class="meta">შემდგომი კონტაქტი: {{ $item->follow_up_at->format('d.m.Y H:i') }}</p>@endif@if($item->internal_notes)<p class="meta">შიდა შენიშვნა: {{ $item->internal_notes }}</p>@endif@endif
 <div class="meta" style="margin-top:12px"><a href="tel:{{ preg_replace('/[^0-9+]/','',$item->customer_phone) }}">დარეკვა ↗</a> @if($item->customer_email) · <a href="mailto:{{ $item->customer_email }}">ელფოსტის გახსნა ↗</a>@endif</div></article>
 @empty<div class="empty">ამ ფილტრით პროდუქტის/სერვისის მოთხოვნები ვერ მოიძებნა.</div>@endforelse
