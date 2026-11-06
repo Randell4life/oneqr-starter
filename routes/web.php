@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/businesses/{business}/orders/{order}/status', [BusinessCartController::class, 'updateStatus'])->whereNumber('order')->name('business.orders.update-status');
     Route::get('/businesses/{business}/catalog', [BusinessCatalogController::class, 'index'])->name('business.catalog.index');
     Route::patch('/businesses/{business}/inquiries/{inquiry}', [BusinessInquiryController::class, 'updateStatus'])->whereNumber('inquiry')->name('business.inquiries.status');
+    Route::patch('/businesses/{business}/reviews/{review}', [BusinessReviewController::class, 'updateStatus'])->whereNumber('review')->name('business.reviews.status');
     Route::post('/businesses/{business}/catalog', [BusinessCatalogController::class, 'store'])->name('business.catalog.store');
     Route::put('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'update'])->whereNumber('item')->name('business.catalog.update');
     Route::delete('/businesses/{business}/catalog/{item}', [BusinessCatalogController::class, 'destroy'])->whereNumber('item')->name('business.catalog.destroy');
